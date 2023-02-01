@@ -4,22 +4,22 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "pip3 install -r requirements.txt"
+                sh "pip install -r requirements.txt"
             }
         }
         stage('Test') {
             steps {
-                sh "python3 test_main.py"
+                sh "python uni_test.py"
             }
         }
         stage('DockerBuild') {
             steps {
-                sh "docker build -t rfmlep ."
+                sh "docker build -t image ."
             }
         }
         stage('DockerRun') {
             steps {
-                sh "docker run -d rfmlep"
+                sh "docker run -d image"
             }
         }
         
