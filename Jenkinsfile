@@ -1,47 +1,27 @@
-pipeline{
+pipeline {
     agent any
-    
-    stages{
 
-
-        stage('Staging branch'){
-            steps{
-                bat 'git checkout dev'
-                bat 'git pull'
-                bat 'git checkout -b staging'
-                bat 'git push --set-upstream origin staging'
+    stages {
+        stage('Build') {
+            steps {
+                sh "pip3 install -r requirements.txt"
             }
         }
-
-        stage('Build'){
-            steps{
-                bat 'pip install -r requirements.txt'
+        stage('Test') {
+            steps {
+                sh "python3 test_main.py"
             }
         }
-
-        stage('Test'){
-            steps{
-                bat 'python -m unittest'
+        stage('DockerBuild') {
+            steps {
+                sh "docker build -t rfmlep ."
             }
         }
-
-        stage ('Image'){
-            steps{
-                bat 'docker build -t image .'
-                bat 'docker run -d -p 5000:5000 image'
+        stage('DockerRun') {
+            steps {
+                sh "docker run -d rfmlep"
             }
         }
-
-        stage('Merge main and staging'){
-            steps{
-                bat 'git checkout main'
-                bat 'git merge staging'
-                bat 'git push --set-upstream origin main'
-                bat 'git branch -d staging'
-                bat 'git push origin --delete staging'
-            }         
-  
-        }
-
+        
     }
 }
