@@ -88,23 +88,29 @@ def format_datetime(df, column):
     dt_local = dt_remote.apply(lambda x: x.astimezone(tz_local))
     return dt_local.dt.strftime('%Y-%m-%d %H:%M:%S')
 
-def fromat_time_col(time_col):
-    return pd.to_datetime(time_col).strftime('%Y-%m-%d %H:%M:%S')
+import pandas as pd
+import pytz
 
-df['_time'] = df['_time'].apply(fromat_time_col)
-df['_time'] = format_datetime(df, df['_time'])
+def format_time_col(time_col):
+    # Convertir la colonne '_time' en un objet datetime avec le fuseau horaire d'origine
+    dt = pd.to_datetime(time_col, format='%Y-%m%dT%H:%M:%S.%f%z').dt.tz_convert(pytz.UTC)
+    # Convertir le temps au fuseau horaire de votre choix
+    dt = dt.dt.tz_convert('Europe/Paris')
+    # Formater la colonne '_time' au format souhaité
+    return dt.dt.strftime('%Y-%m-%d %H:%M:%S')
 
-df["_time"] = pd.to_datetime(df["_time"], format="%Y-%m-%d %H:%M:%S")
+# Charger les données dans un DataFrame
+df = pd.read_csv('data.csv')
 
-df_ = df.copy()
-df_ = df_.sort_values(by=['user', '_time'])
+# Formater la colonne '_time'
+df['_time'] = df['_time'].apply(format_time_col)
 
-"""df["nb_seconds"] = df['time'].apply(lambda x: datetime.strptime(x, '%H:%M:%S').hour * 3600
-                                    + datetime.strptime(x, '%H:%M:%S').minute * 60
-                                    + datetime.strptime(x, '%H:%M:%S').second)"""
+# Convertir la colonne '_time' en objet datetime
+df['_time'] = pd.to_datetime(df['_time'], format='%Y-%m-%d %H:%M:%S')
 
-df_["hour_of_day"] = df_["_time"].dt.hour
-df_["day_of_week"] = df_["_time"].dt.dayofweek
-df_['is_weekend'] = df_["_time"].dt.dayofweek.isin([5,6]).astype(int)
-#df_['is_working_hours'] = df_["_time"].dt.hour.isin(range(8,18)).astype(int)
-df_['is_night'] = (df_["_time"].dt.hour.isin(range(22,24)) | df_["_time"].dt.hour.isin(range(0,7))).astype(int)
+# Extraire les informations de temps souhaitées
+df['hour_of_day'] = df['_time'].dt.hour
+df['day_of_week'] = df['_time'].dt.dayofweek
+df['is_weekend'] = df['_time'].dt.dayofweek.isin([5,6]).astype(int)
+df['is_night'] = ((df['_time'].dt.hour >= 22) | (df['_time'].dt.hour < 7)).astype(int)
+
