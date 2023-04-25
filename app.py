@@ -75,3 +75,18 @@ def process_subject(df):
     df['subject'] = df['subject'].apply(lambda x: ' '.join([word for word in x.split() if len(word) > 2]))
     
     return df
+
+from datetime import datetime
+import pytz
+
+def format_datetime(df, column):
+    fmt = '%Y-%m-%dT%H:%M:%S.%f%z'
+    tz_remote = pytz.timezone('UTC')
+    tz_local = pytz.timezone('Europe/Paris')
+    dt = column.apply(lambda x: datetime.strptime(x[:-6], fmt))
+    dt_remote = dt.apply(lambda x: tz_remote.localize(x, is_dst=None))
+    dt_local = dt_remote.apply(lambda x: x.astimezone(tz_local))
+    return dt_local.dt.strftime('%Y-%m-%d %H:%M:%S')
+
+df['_time'] = format_datetime(df, df['_time'])
+
