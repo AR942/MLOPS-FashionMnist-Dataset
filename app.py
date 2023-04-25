@@ -88,5 +88,23 @@ def format_datetime(df, column):
     dt_local = dt_remote.apply(lambda x: x.astimezone(tz_local))
     return dt_local.dt.strftime('%Y-%m-%d %H:%M:%S')
 
+def fromat_time_col(time_col):
+    return pd.to_datetime(time_col).strftime('%Y-%m-%d %H:%M:%S')
+
+df['_time'] = df['_time'].apply(fromat_time_col)
 df['_time'] = format_datetime(df, df['_time'])
 
+df["_time"] = pd.to_datetime(df["_time"], format="%Y-%m-%d %H:%M:%S")
+
+df_ = df.copy()
+df_ = df_.sort_values(by=['user', '_time'])
+
+"""df["nb_seconds"] = df['time'].apply(lambda x: datetime.strptime(x, '%H:%M:%S').hour * 3600
+                                    + datetime.strptime(x, '%H:%M:%S').minute * 60
+                                    + datetime.strptime(x, '%H:%M:%S').second)"""
+
+df_["hour_of_day"] = df_["_time"].dt.hour
+df_["day_of_week"] = df_["_time"].dt.dayofweek
+df_['is_weekend'] = df_["_time"].dt.dayofweek.isin([5,6]).astype(int)
+#df_['is_working_hours'] = df_["_time"].dt.hour.isin(range(8,18)).astype(int)
+df_['is_night'] = (df_["_time"].dt.hour.isin(range(22,24)) | df_["_time"].dt.hour.isin(range(0,7))).astype(int)
