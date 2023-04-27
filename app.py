@@ -76,21 +76,27 @@ def process_subject(df):
     
     return df
 
-from datetime import datetime
-import pytz
+def add_dummies_to_new_data(dummies_list, dummies_pickle_file, new_data_df):
+    # Charger le dummies à partir du fichier pickle
+    with open(dummies_pickle_file, 'rb') as handle:
+        dummies = pickle.load(handle)
+        
+    # Créer un dataframe contenant uniquement les colonnes présentes dans le dummies list
+    new_data_dummies = pd.DataFrame(columns=dummies_list)
+    
+    # Ajouter les dummies pour chaque ligne du nouveau dataframe
+    for index, row in new_data_df.iterrows():
+        categories = row['category'].split(',')
+        for category in categories:
+            if category not in dummies_list:
+                dummies.loc[dummies.index[-1] + 1] = [0] * len(dummies.columns)
+                dummies.loc[dummies.index[-1], 'category_other_category'] = 1
+                dummies_list.append(category)
+        new_data_dummies_row = [1 if category in categories else 0 for category in dummies_list]
+        new_data_dummies.loc[index] = new_data_dummies_row
 
-def format_datetime(df, column):
-    fmt = '%Y-%m-%dT%H:%M:%S.%f%z'
-    tz_remote = pytz.timezone('UTC')
-    tz_local = pytz.timezone('Europe/Paris')
-    dt = column.apply(lambda x: datetime.strptime(x[:-6], fmt))
-    dt_remote = dt.apply(lambda x: tz_remote.localize(x, is_dst=None))
-    dt_local = dt_remote.apply(lambda x: x.astimezone(tz_local))
-    return dt_local.dt.strftime('%Y-%m-%d %H:%M:%S')
+    # Concaténer les dummies à la nouvelle ligne de données
+    new_data = pd.concat([new_data_df, new_data_dummies], axis=1)
 
-import pandas as pd
-import pytz
-
-df_dummies_category = df_["category"].str.get_dummies(sep=',').add_prefix('category_')
-df_ = pd.concat([df_, df_dummies_category], axis=1)
+    return new_data
 
