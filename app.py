@@ -76,27 +76,28 @@ def process_subject(df):
     
     return df
 
-def add_dummies_to_new_data(dummies_list, dummies_pickle_file, new_data_df):
-    # Charger le dummies à partir du fichier pickle
-    with open(dummies_pickle_file, 'rb') as handle:
-        dummies = pickle.load(handle)
-        
-    # Créer un dataframe contenant uniquement les colonnes présentes dans le dummies list
-    new_data_dummies = pd.DataFrame(columns=dummies_list)
-    
-    # Ajouter les dummies pour chaque ligne du nouveau dataframe
-    for index, row in new_data_df.iterrows():
+def add_dummies_to_new_data(dummies, new_data_df):
+    # Initialiser une série de colonnes category_other_category à 0
+    other_category_cols = pd.Series(0, index=dummies.columns[dummies.columns.str.startswith('category_')])
+
+    # Parcourir chaque ligne du nouveau DataFrame
+    for i, row in new_data_df.iterrows():
+        # Extraire les catégories de la ligne
         categories = row['category'].split(',')
+
+        # Vérifier si chaque catégorie est présente dans les dummies
         for category in categories:
-            if category not in dummies_list:
-                dummies.loc[dummies.index[-1] + 1] = [0] * len(dummies.columns)
-                dummies.loc[dummies.index[-1], 'category_other_category'] = 1
-                dummies_list.append(category)
-        new_data_dummies_row = [1 if category in categories else 0 for category in dummies_list]
-        new_data_dummies.loc[index] = new_data_dummies_row
+            if category not in dummies.columns:
+                other_category_cols['category_other_category'] = 1
+                break
 
-    # Concaténer les dummies à la nouvelle ligne de données
-    new_data = pd.concat([new_data_df, new_data_dummies], axis=1)
+        # Concaténer les dummies et les colonnes category_other_category à la ligne de données
+        new_data_df.loc[i, dummies.columns] = 0  # Initialiser les colonnes à 0
+        new_data_df.loc[i, other_category_cols.index] = other_category_cols.values
+        for category in categories:
+            if category in dummies.columns:
+                new_data_df.loc[i, category] = 1
 
-    return new_data
+    return new_data_df
+
 
