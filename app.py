@@ -76,28 +76,6 @@ def process_subject(df):
     
     return df
 
-def add_dummies_to_new_data(dummies, new_data_df):
-    # Initialiser une série de colonnes category_other_category à 0
-    other_category_cols = pd.Series(0, index=dummies.columns[dummies.columns.str.startswith('category_')])
-
-    # Parcourir chaque ligne du nouveau DataFrame
-    for i, row in new_data_df.iterrows():
-        # Extraire les catégories de la ligne
-        categories = row['category'].split(',')
-
-        # Vérifier si chaque catégorie est présente dans les dummies
-        for category in categories:
-            if category not in dummies.columns:
-                other_category_cols['category_other_category'] = 1
-                break
-
-        # Concaténer les dummies et les colonnes category_other_category à la ligne de données
-        new_data_df.loc[i, dummies.columns] = 0  # Initialiser les colonnes à 0
-        new_data_df.loc[i, other_category_cols.index] = other_category_cols.values
-        for category in categories:
-            if category in dummies.columns:
-                new_data_df.loc[i, category] = 1
-
-    return new_data_df
+v
 
 
