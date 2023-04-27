@@ -91,26 +91,6 @@ def format_datetime(df, column):
 import pandas as pd
 import pytz
 
-def format_time_col(time_col):
-    # Convertir la colonne '_time' en un objet datetime avec le fuseau horaire d'origine
-    dt = pd.to_datetime(time_col, format='%Y-%m%dT%H:%M:%S.%f%z').dt.tz_convert(pytz.UTC)
-    # Convertir le temps au fuseau horaire de votre choix
-    dt = dt.dt.tz_convert('Europe/Paris')
-    # Formater la colonne '_time' au format souhaité
-    return dt.dt.strftime('%Y-%m-%d %H:%M:%S')
-
-# Charger les données dans un DataFrame
-df = pd.read_csv('data.csv')
-
-# Formater la colonne '_time'
-df['_time'] = df['_time'].apply(format_time_col)
-
-# Convertir la colonne '_time' en objet datetime
-df['_time'] = pd.to_datetime(df['_time'], format='%Y-%m-%d %H:%M:%S')
-
-# Extraire les informations de temps souhaitées
-df['hour_of_day'] = df['_time'].dt.hour
-df['day_of_week'] = df['_time'].dt.dayofweek
-df['is_weekend'] = df['_time'].dt.dayofweek.isin([5,6]).astype(int)
-df['is_night'] = ((df['_time'].dt.hour >= 22) | (df['_time'].dt.hour < 7)).astype(int)
+df_dummies_category = df_["category"].str.get_dummies(sep=',').add_prefix('category_')
+df_ = pd.concat([df_, df_dummies_category], axis=1)
 
