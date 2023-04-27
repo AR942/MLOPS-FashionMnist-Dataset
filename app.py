@@ -54,27 +54,28 @@ def lemmatize_text(text):
         doc = nlp_fr(text)
     return " ".join([token.lemma_ for token in doc])
 
-# Définir la fonction pour traiter la colonne 'subject'
-def process_subject(df):
-    # Appliquer la fonction de lemmatisation à la colonne 'subject'
-    df['subject'] = df['subject'].apply(lemmatize_text)
-    
-    # Supprimer les caractères spéciaux et les chiffres
-    df['subject'] = df['subject'].str.replace('[^a-zA-Z]', ' ')
-    
-    # Mettre en minuscule
-    df['subject'] = df['subject'].str.lower()
-    
-    # Supprimer les stopwords en anglais et en français
-    spacy_stopwords_en = spacy.lang.en.stop_words.STOP_WORDS
-    spacy_stopwords_fr = spacy.lang.fr.stop_words.STOP_WORDS
-    stopwords = set().union(spacy_stopwords_en, spacy_stopwords_fr)
-    df['subject'] = df['subject'].apply(lambda x: ' '.join([word for word in x.split() if word not in stopwords]))
-    
-    # Supprimer les mots avec une longueur inférieure à 3
-    df['subject'] = df['subject'].apply(lambda x: ' '.join([word for word in x.split() if len(word) > 2]))
-    
-    return df
+def add_dummies_to_new_data(dummies_list, new_data_df):
+    # Charger les dummies à partir du fichier pickle
+    with open('dummies.pickle', 'rb') as handle:
+        dummies = pickle.load(handle)
+
+    # Appliquer les dummies sur la nouvelle ligne
+    new_data_dummies = pd.get_dummies(new_data_df['category'].str.split(',', expand=True), prefix='category')
+    new_data_dummies = new_data_dummies.reindex(columns=dummies_list, fill_value=0)
+
+    # Trouver les catégories qui ne sont pas dans les dummies et les ajouter à category_other_category
+    missing_categories = set(new_data_dummies.columns) - set(dummies_list)
+    if missing_categories:
+        new_data_dummies['category_other_category'] = 0
+        for category in missing_categories:
+            new_data_dummies['category_other_category'] = new_data_dummies['category_other_category'] | new_data_dummies[category]
+            del new_data_dummies[category]
+
+    # Concaténer les dummies à la nouvelle ligne de données
+    new_data = pd.concat([new_data_df, new_data_dummies], axis=1)
+
+    return new_data
+
 
 v
 
