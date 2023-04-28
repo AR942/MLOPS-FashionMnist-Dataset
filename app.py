@@ -54,33 +54,25 @@ def lemmatize_text(text):
         doc = nlp_fr(text)
     return " ".join([token.lemma_ for token in doc])
 
-def add_dummies_to_new_data(dummies_list, new_data_df):
-    # Charger les dummies à partir du fichier pickle
-    with open('dummies.pickle', 'rb') as handle:
+def add_dummies_to_new_data(new_data_df):
+    with open('app/model/data/ML0004_dummies_category_ARO.pkl', 'rb') as handle:
         dummies = pickle.load(handle)
+    
+    dummies_list = dummies.columns.tolist()
 
-    # Obtenir les catégories de la nouvelle ligne
-    categories = new_data_df['category'].str.split(',', expand=True).values.flatten()
+    new_data_dummies = new_data_df["category"].str.get_dummies(sep=',').add_prefix('category_')
+    #new_data_dummies = new_data_dummies.reindex(columns=dummies_list, fill_value=0)
+    new_data_dummies['category_other_category'] = 0
 
-    # Vérifier si toutes les catégories sont présentes dans la liste de dummies
-    if set(categories).issubset(set(dummies_list)):
-        # Appliquer les dummies sur la nouvelle ligne
-        new_data_dummies = pd.get_dummies(categories, prefix='category')
-        new_data_dummies = new_data_dummies.reindex(columns=dummies_list, fill_value=0)
-    else:
-        # Trouver les catégories absentes du dummies
-        missing_categories = set(categories) - set(dummies_list)
+    for category in new_data_dummies:
+        if category not in dummies.columns:
+            new_data_df['category_other_category'] = 1
+        """for category in missing_categories:
+            new_data_dummies['category_other_category'] = new_data_dummies['category_other_category'] | new_data_dummies[category]
+            del new_data_dummies[category]"""
 
-        # Ajouter les catégories absentes à category_other_category
-        new_data_dummies = pd.DataFrame(columns=dummies_list)
-        new_data_dummies['category_other_category'] = 0
-        for category in missing_categories:
-            new_data_dummies['category_other_category'] = new_data_dummies['category_other_category'] | (categories == category)
-
-    # Concaténer les dummies à la nouvelle ligne de données
     new_data = pd.concat([new_data_df, new_data_dummies], axis=1)
 
     return new_data
-
 
 
