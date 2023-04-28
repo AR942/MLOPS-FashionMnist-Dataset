@@ -59,24 +59,28 @@ def add_dummies_to_new_data(dummies_list, new_data_df):
     with open('dummies.pickle', 'rb') as handle:
         dummies = pickle.load(handle)
 
-    # Appliquer les dummies sur la nouvelle ligne
-    new_data_dummies = pd.get_dummies(new_data_df['category'].str.split(',', expand=True), prefix='category')
-    new_data_dummies = new_data_dummies.reindex(columns=dummies_list, fill_value=0)
+    # Obtenir les catégories de la nouvelle ligne
+    categories = new_data_df['category'].str.split(',', expand=True).values.flatten()
 
-    # Trouver les catégories qui ne sont pas dans les dummies et les ajouter à category_other_category
-    missing_categories = set(new_data_dummies.columns) - set(dummies_list)
-    if missing_categories:
+    # Vérifier si toutes les catégories sont présentes dans la liste de dummies
+    if set(categories).issubset(set(dummies_list)):
+        # Appliquer les dummies sur la nouvelle ligne
+        new_data_dummies = pd.get_dummies(categories, prefix='category')
+        new_data_dummies = new_data_dummies.reindex(columns=dummies_list, fill_value=0)
+    else:
+        # Trouver les catégories absentes du dummies
+        missing_categories = set(categories) - set(dummies_list)
+
+        # Ajouter les catégories absentes à category_other_category
+        new_data_dummies = pd.DataFrame(columns=dummies_list)
         new_data_dummies['category_other_category'] = 0
         for category in missing_categories:
-            new_data_dummies['category_other_category'] = new_data_dummies['category_other_category'] | new_data_dummies[category]
-            del new_data_dummies[category]
+            new_data_dummies['category_other_category'] = new_data_dummies['category_other_category'] | (categories == category)
 
     # Concaténer les dummies à la nouvelle ligne de données
     new_data = pd.concat([new_data_df, new_data_dummies], axis=1)
 
     return new_data
 
-
-v
 
 
