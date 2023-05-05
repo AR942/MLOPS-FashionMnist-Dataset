@@ -76,3 +76,9 @@ def add_dummies_to_new_data(new_data_df):
     return new_data
 
 
+stopwords_en = set(["a", "an", "the", "and", "or", "if", "in", "of", "on", "that", "is", "was", "at", "to", "by", "for", "with", "it", "this", "these", "those"])
+stopwords_fr = set(["un", "une", "le", "la", "les", "et", "ou", "si", "dans", "de", "sur", "que", "est", "à", "par", "avec", "ce", "cette", "ces", "ceux", "celles"])
+
+# 
+
+
