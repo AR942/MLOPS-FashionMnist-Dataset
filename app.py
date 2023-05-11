@@ -111,4 +111,64 @@ stopwords = set([
 # 
 ['a', 'ai', 'aie', 'aient', 'aies', 'ait', 'alors', 'après', 'as', 'au', 'aucun', 'aura', 'aurai', 'auraient', 'aurais', 'aurait', 'auras', 'aurez', 'auriez', 'aurions', 'aurons', 'auront', 'aussi', 'autre', 'aux', 'avaient', 'avais', 'avait', 'avant', 'avec', 'avez', 'aviez', 'avions', 'avons', 'ayant', 'ayez', 'ayons', 'bien', 'bon', 'car', 'ce', 'cela', 'ces', 'cet', 'cette', 'ceux', 'chaque', 'ci', 'combien', 'comme', 'comment', 'd', 'dans', 'de', 'debout', 'dedans', 'dehors', 'delà', 'depuis', 'derrière', 'des', 'désormais', 'desquelles', 'desquels', 'dessous', 'dessus', 'devant', 'devers', 'devra', 'devrait', 'devront', 'dire', 'dois', 'doit', 'donc', 'dont', 'douze', 'douzième', 'dr', 'du', 'duquel', 'durant', 'dès', 'début', 'désormais', 'eh', 'elle', 'elles', 'en', 'encore', 'entre', 'envers', 'es', 'est', 'et', 'etc', 'etre', 'eu', 'eue', 'eues', 'euh', 'eurent', 'eus', 'eusse', 'eussent', 'eusses', 'eussiez', 'eussions', 'eut', 'eux', 'excepté', 'hormis', 'hors', 'huit', 'huitième', 'ici', 'il', 'ils', 'j', 'je', 'jusqu', 'jusque', 'l', 'la', 'laquelle', 'le', 'lequel', 'les', 'lesquelles', 'lesquels', 'leur', 'leurs', 'longtemps', 'lorsque', 'lui', 'là', 'lès', 'ma', 'maint', 'maintenant', 'mais', 'me', 'mes', 'mine', 'moi', 'moins', 'mon', 'mot', 'même', 'mêmes', 'n', 'ne', 'ni', 'non', 'nos', 'notre', 'nous', 'nul', 'néanmoins', 'nôtre', 'nôtres', 'on', 'ont', 'onze', 'onzième', 'or', 'ou', 'où', 'par', 'parce', 'parmi', 'partant', 'pas', 'passé', 'pendant', 'personne', 'peu', 'plus', 'plutôt', 'possible', 'pour', 'pourquoi', 'premier', 'première', 'premièrement', 'près', 'proche', 'ps', 'puisque', 'put', 'pût', 'qu', 'quand', 'quant', 'quatorze', 'quatrième', 'quatrièmement
 
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from keras.models import Model
+from keras.layers import Input, Embedding, Conv1D, MaxPooling1D, Flatten, Dense, concatenate
+from keras.callbacks import EarlyStopping
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+# Charger les données dans un DataFrame pandas
+df = pd.read_csv("chemin/vers/votre/dataset.csv")
+
+# Combiner les colonnes "subject" et "attachment" en une seule colonne "text"
+df['text'] = df['subject'].astype(str) + ' ' + df['attachment'].astype(str)
+
+# Enlever les mots malveillants de la colonne "text"
+malicious_words = ['spam', 'phishing', 'scam', 'fraud']
+remove_malicious_words = lambda s: ' '.join([word for word in s.split() if word.lower() not in malicious_words])
+df['text'] = df['text'].apply(remove_malicious_words)
+
+# Diviser les données en ensemble d'entraînement et ensemble de test
+X_train_text, X_test_text, X_train_mwc, X_test_mwc, y_train, y_test = train_test_split(df['text'], df['malicious_words_count'], df['target'], test_size=0.2, random_state=42)
+
+# Convertir les textes en séquences de nombres
+tokenizer = Tokenizer(num_words=10000)
+tokenizer.fit_on_texts(X_train_text)
+X_train_text = tokenizer.texts_to_sequences(X_train_text)
+X_test_text = tokenizer.texts_to_sequences(X_test_text)
+
+# Remplir les séquences avec des zéros pour qu'elles aient toutes la même longueur
+maxlen = 100
+X_train_text = pad_sequences(X_train_text, padding='post', maxlen=maxlen)
+X_test_text = pad_sequences(X_test_text, padding='post', maxlen=maxlen)
+
+# Construire les couches d'entrée pour les données textuelles et les données de comptage de mots malveillants
+text_input = Input(shape=(maxlen,), name='text_input')
+mwc_input = Input(shape=(1,), name='mwc_input')
+
+# Ajouter une couche d'embedding pour les données textuelles
+emb = Embedding(10000, 128, input_length=maxlen)(text_input)
+
+# Ajouter une couche de convolution pour les données textuelles
+conv = Conv1D(64, 5, activation='relu')(emb)
+pool = MaxPooling1D(pool_size=4)(conv)
+flat = Flatten()(pool)
+
+# Concaténer les sorties des couches d'embedding et de comptage de mots malveillants
+concat = concatenate([flat, mwc_input], axis=-1)
+
+# Ajouter une couche dense pour la sortie
+out = Dense(1, activation='sigmoid')(concat)
+
+# Construire le modèle
+model = Model(inputs=[text_input, mwc_input], outputs=out)
+
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+# Entraîner le modèle
+early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
+model.fit({'
 
