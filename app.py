@@ -76,40 +76,32 @@ def add_dummies_to_new_data(new_data_df):
     return new_data
 
 
-stopwords = set([
-    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be",
-    "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "can't", "cannot", "could",
-    "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from",
-    "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here",
-    "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in",
-    "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself",
-    "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out",
-    "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such",
-    "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these",
-    "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up",
-    "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when",
-    "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would",
-    "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves",
-    "a", "ai", "aie", "aient", "aies", "ainsi", "ait", "allaient", "allo", "allons", "allô", "alors", "anterieur",
-    "anterieure", "anterieures", "apres", "après", "as", "assez", "attendu", "au", "aucun", "aucune", "aucuns",
-    "aujourd", "aujourd'hui", "aupres", "auquel", "aura", "aurai", "auraient", "aurais", "aurait", "auras", "aurez",
-    "auriez", "aurions", "aurons", "auront", "aussi", "autre", "autrefois", "autrement", "autres", "autrui", "aux",
-    "auxquelles", "auxquels", "avaient", "avais", "avait", "avant", "avec", "avoir", "avons", "ayant", "b", "bah",
-    "bas", "basee", "bat", "beau", "beaucoup", "bien", "bigre", "bon", "boum", "bravo", "brrr", "c", "car", "ce",
-    "ceci", "cela", "celle", "celle-ci", "celle-là", "celles", "celles-ci", "celles-là", "celui", "celui-ci",
-    "celui-là", "celà", "cent", "cependant", "certain", "certaine", "certaines", "certains", "certes", "ces",
-    "cet", "cette", "ceux", "ceux-ci", "ceux-là", "chacun", "chacune", "chaque", "cher", "chers", "chez", "chiche",
-    "chut", "ci", "cinq", "cinquantaine", "cinquante", "cinquantième", "cinquième", "clac", "clic", "combien",
-    "comme", "comment", "comparable", "comparables", "compris", "concernant", "contre", "couic", "crac", "d", "da",
-    "dans", "de", "debout", "dedans", "dehors", "deja", "delà", "depuis", "dernier", "derniere", "derriere",
-    "derrière", "des", "desormais", "desquelles", "desquels", "dessous", "dessus", "deux", "deuxième", "deuxièmement",
-    "devant", "devers", "devra", "devrait", "different", "differentes", "differents", "différent", "différente",
-    "différentes", "différents", "dire", "directe", "directement", "dit", "dite", "dits", "divers", "diverse",
-    "diverses", "dix", "dix-huit", "dix-neuf", "dix-sept", "dixième", "doit", "doivent", "donc"
-)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from keras.models import Model
+from keras.layers import Input, Embedding, Conv1D, MaxPooling1D, Flatten, Dense, concatenate, Dropout, SpatialDropout1D
+from keras.callbacks import EarlyStopping
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# 
-['a', 'ai', 'aie', 'aient', 'aies', 'ait', 'alors', 'après', 'as', 'au', 'aucun', 'aura', 'aurai', 'auraient', 'aurais', 'aurait', 'auras', 'aurez', 'auriez', 'aurions', 'aurons', 'auront', 'aussi', 'autre', 'aux', 'avaient', 'avais', 'avait', 'avant', 'avec', 'avez', 'aviez', 'avions', 'avons', 'ayant', 'ayez', 'ayons', 'bien', 'bon', 'car', 'ce', 'cela', 'ces', 'cet', 'cette', 'ceux', 'chaque', 'ci', 'combien', 'comme', 'comment', 'd', 'dans', 'de', 'debout', 'dedans', 'dehors', 'delà', 'depuis', 'derrière', 'des', 'désormais', 'desquelles', 'desquels', 'dessous', 'dessus', 'devant', 'devers', 'devra', 'devrait', 'devront', 'dire', 'dois', 'doit', 'donc', 'dont', 'douze', 'douzième', 'dr', 'du', 'duquel', 'durant', 'dès', 'début', 'désormais', 'eh', 'elle', 'elles', 'en', 'encore', 'entre', 'envers', 'es', 'est', 'et', 'etc', 'etre', 'eu', 'eue', 'eues', 'euh', 'eurent', 'eus', 'eusse', 'eussent', 'eusses', 'eussiez', 'eussions', 'eut', 'eux', 'excepté', 'hormis', 'hors', 'huit', 'huitième', 'ici', 'il', 'ils', 'j', 'je', 'jusqu', 'jusque', 'l', 'la', 'laquelle', 'le', 'lequel', 'les', 'lesquelles', 'lesquels', 'leur', 'leurs', 'longtemps', 'lorsque', 'lui', 'là', 'lès', 'ma', 'maint', 'maintenant', 'mais', 'me', 'mes', 'mine', 'moi', 'moins', 'mon', 'mot', 'même', 'mêmes', 'n', 'ne', 'ni', 'non', 'nos', 'notre', 'nous', 'nul', 'néanmoins', 'nôtre', 'nôtres', 'on', 'ont', 'onze', 'onzième', 'or', 'ou', 'où', 'par', 'parce', 'parmi', 'partant', 'pas', 'passé', 'pendant', 'personne', 'peu', 'plus', 'plutôt', 'possible', 'pour', 'pourquoi', 'premier', 'première', 'premièrement', 'près', 'proche', 'ps', 'puisque', 'put', 'pût', 'qu', 'quand', 'quant', 'quatorze', 'quatrième', 'quatrièmement
+emb = Embedding(10000, 128, input_length=maxlen)(text_input)
+emb = SpatialDropout1D(0.2)(emb)
+
+conv = Conv1D(64, 5, activation='relu')(emb)
+pool = MaxPooling1D(pool_size=4)(conv)
+flat = Flatten()(pool)
+
+dense1 = Dense(64, activation='relu')(concat)
+dense1 = Dropout(0.2)(dense1)
+dense2 = Dense(32, activation='relu')(dense1)
+out = Dense(1, activation='sigmoid')(dense2)
+
+
+
+
+
+
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
