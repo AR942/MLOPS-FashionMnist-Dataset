@@ -170,5 +170,20 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 
 # Entraîner le modèle
 early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
-model.fit({'
+# Entraîner le modèle
+early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
+model.fit({'text_input': X_train_text, 'mwc_input': X_train_mwc}, y_train,
+          validation_data=({'text_input': X_test_text, 'mwc_input': X_test_mwc}, y_test),
+          epochs=10, batch_size=32, callbacks=[early_stop])
+
+# Prédire les étiquettes pour l'ensemble de test
+y_pred = model.predict({'text_input': X_test_text, 'mwc_input': X_test_mwc})
+y_pred = (y_pred > 0.5).astype(int)
+
+# Calculer les métriques de classification
+print("Accuracy : ", accuracy_score(y_test, y_pred))
+print("Precision : ", precision_score(y_test, y_pred))
+print("Recall : ", recall_score(y_test, y_pred))
+print("F1 Score : ", f1_score(y_test, y_pred))
+
 
