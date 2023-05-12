@@ -76,113 +76,52 @@ def add_dummies_to_new_data(new_data_df):
     return new_data
 
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.models import Model
-from keras.layers import Input, Embedding, Conv1D, MaxPooling1D, Flatten, Dense, concatenate, Dropout, SpatialDropout1D
-from keras.callbacks import EarlyStopping
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+# Convertir les textes en séquences de nombres
+tokenizer = Tokenizer(num_words=1000)
+tokenizer.fit_on_texts(X_train_text)
+X_train_text = tokenizer.texts_to_sequences(X_train_text)
+X_test_text = tokenizer.texts_to_sequences(X_test_text)
 
-emb = Embedding(10000, 128, input_length=maxlen)(text_input)
+maxlen = 100
+X_train_text = pad_sequences(X_train_text, padding='post', maxlen=maxlen)
+X_test_text = pad_sequences(X_test_text, padding='post', maxlen=maxlen)
+
+text_input = Input(shape=(maxlen,), name='text_input')
+mwc_input = Input(shape=(31,), name='mwc_input')
+
+emb = Embedding(1000, 128, input_length=maxlen)(text_input)
 emb = SpatialDropout1D(0.2)(emb)
-
-conv = Conv1D(64, 5, activation='relu')(emb)
+lstm = LSTM(64,dropout=0.2, recurrent_dropout=0.2, return_sequences=True)(emb)
+conv = Conv1D(64, 5, activation='relu')(lstm)
 pool = MaxPooling1D(pool_size=4)(conv)
 flat = Flatten()(pool)
+
+from tensorflow import keras
+prec = keras.metrics.Precision()
+rec = keras.metrics.Recall()
+
+concat = concatenate([flat, mwc_input], axis=-1)
 
 dense1 = Dense(64, activation='relu')(concat)
 dense1 = Dropout(0.2)(dense1)
 dense2 = Dense(32, activation='relu')(dense1)
 out = Dense(1, activation='sigmoid')(dense2)
 
-
-
-
-
-
-
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.models import Model
-from keras.layers import Input, Embedding, Conv1D, MaxPooling1D, Flatten, Dense, concatenate
-from keras.callbacks import EarlyStopping
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-# Charger les données dans un DataFrame pandas
-df = pd.read_csv("chemin/vers/votre/dataset.csv")
-
-# Combiner les colonnes "subject" et "attachment" en une seule colonne "text"
-df['text'] = df['subject'].astype(str) + ' ' + df['attachment'].astype(str)
-
-# Enlever les mots malveillants de la colonne "text"
-malicious_words = ['spam', 'phishing', 'scam', 'fraud']
-remove_malicious_words = lambda s: ' '.join([word for word in s.split() if word.lower() not in malicious_words])
-df['text'] = df['text'].apply(remove_malicious_words)
-
-# Diviser les données en ensemble d'entraînement et ensemble de test
-X_train_text, X_test_text, X_train_mwc, X_test_mwc, y_train, y_test = train_test_split(df['text'], df['malicious_words_count'], df['target'], test_size=0.2, random_state=42)
-
-# Convertir les textes en séquences de nombres
-tokenizer = Tokenizer(num_words=10000)
-tokenizer.fit_on_texts(X_train_text)
-X_train_text = tokenizer.texts_to_sequences(X_train_text)
-X_test_text = tokenizer.texts_to_sequences(X_test_text)
-
-# Remplir les séquences avec des zéros pour qu'elles aient toutes la même longueur
-maxlen = 100
-X_train_text = pad_sequences(X_train_text, padding='post', maxlen=maxlen)
-X_test_text = pad_sequences(X_test_text, padding='post', maxlen=maxlen)
-
-# Construire les couches d'entrée pour les données textuelles et les données de comptage de mots malveillants
-text_input = Input(shape=(maxlen,), name='text_input')
-mwc_input = Input(shape=(1,), name='mwc_input')
-
-# Ajouter une couche d'embedding pour les données textuelles
-emb = Embedding(10000, 128, input_length=maxlen)(text_input)
-
-# Ajouter une couche de convolution pour les données textuelles
-conv = Conv1D(64, 5, activation='relu')(emb)
-pool = MaxPooling1D(pool_size=4)(conv)
-flat = Flatten()(pool)
-
-# Concaténer les sorties des couches d'embedding et de comptage de mots malveillants
-concat = concatenate([flat, mwc_input], axis=-1)
-
-# Ajouter une couche dense pour la sortie
-out = Dense(1, activation='sigmoid')(concat)
-
-# Construire le modèle
 model = Model(inputs=[text_input, mwc_input], outputs=out)
 
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.0005), metrics=[rec,prec])
 
-# Entraîner le modèle
-early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
-# Entraîner le modèle
-early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1)
+#early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True)
 model.fit({'text_input': X_train_text, 'mwc_input': X_train_mwc}, y_train,
           validation_data=({'text_input': X_test_text, 'mwc_input': X_test_mwc}, y_test),
-          epochs=10, batch_size=32, callbacks=[early_stop])
+          epochs=50, batch_size=64, #callbacks=[early_stop]
+         )
 
-# Prédire les étiquettes pour l'ensemble de test
 y_pred = model.predict({'text_input': X_test_text, 'mwc_input': X_test_mwc})
 y_pred = (y_pred > 0.5).astype(int)
 
-# Calculer les métriques de classification
 print("Accuracy : ", accuracy_score(y_test, y_pred))
 print("Precision : ", precision_score(y_test, y_pred))
 print("Recall : ", recall_score(y_test, y_pred))
 print("F1 Score : ", f1_score(y_test, y_pred))
-
-from keras import backend as K
-
-def recall(y_true, y_pred):
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-    recall = true_positives / (possible_positives + K.epsilon())
-    return recall
 
