@@ -131,3 +131,8 @@ print("F1 Score : ", f1_score(y_test, y_pred))
 0.9711344211344212
 0.03926115564400642
 0.03324882472475661
+
+
+{'accuracy': 0.99, 'precision': 0.72, 'recall': 0.99}
+
+{'accuracy': 0.99, 'precision': 0.67, 'recall': 0.95}
