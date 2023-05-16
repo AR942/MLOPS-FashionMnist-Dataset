@@ -125,3 +125,9 @@ print("Precision : ", precision_score(y_test, y_pred))
 print("Recall : ", recall_score(y_test, y_pred))
 print("F1 Score : ", f1_score(y_test, y_pred))
 
+[0.70175439 0.71929825 0.65517241 0.70689655 0.61403509]
+[0.90909091 1.         0.97435897 1.         0.97222222]
+0.6794313369630974
+0.9711344211344212
+0.03926115564400642
+0.03324882472475661
