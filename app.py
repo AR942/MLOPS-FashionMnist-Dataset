@@ -136,3 +136,34 @@ print("F1 Score : ", f1_score(y_test, y_pred))
 {'accuracy': 0.99, 'precision': 0.72, 'recall': 0.99}
 
 {'accuracy': 0.99, 'precision': 0.67, 'recall': 0.95}
+
+
+def group_similar_words(word_list):
+    grouped_words = []
+    for word in word_list:
+        # Recherche d'un groupe existant contenant un mot similaire
+        group_found = False
+        for group in grouped_words:
+            for grouped_word in group:
+                # Comparaison de similarité entre les mots
+                if are_similar_words(word, grouped_word):
+                    group.append(word)
+                    group_found = True
+                    break
+            if group_found:
+                break
+        # Création d'un nouveau groupe si aucun groupe existant ne contient de mots similaires
+        if not group_found:
+            grouped_words.append([word])
+    return grouped_words
+
+
+def are_similar_words(word1, word2):
+    # Comparaison des mots en minuscules et en supprimant les caractères non alphabétiques
+    cleaned_word1 = ''.join(c.lower() for c in word1 if c.isalpha())
+    cleaned_word2 = ''.join(c.lower() for c in word2 if c.isalpha())
+    # Vérification de la similarité en utilisant une condition personnalisée
+    return cleaned_word1.startswith(cleaned_word2) or cleaned_word2.startswith(cleaned_word1)
+
+df['text'] = df['text'].apply(lambda x: ' '.join(group_similar_words(x.split())))
+
