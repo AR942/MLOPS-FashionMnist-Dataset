@@ -75,6 +75,13 @@ def add_dummies_to_new_data(new_data_df):
 
     return new_data
 
+
+from sklearn.model_selection import train_test_split
+
+# Diviser les données en ensembles d'entraînement et de test
+X_train_text, X_test_text, X_train_mwc, X_test_mwc, y_train, y_test = train_test_split(
+    text_data, mwc_data, labels, test_size=0.2, random_state=42)
+
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Input, Embedding, SpatialDropout1D, LSTM, Conv1D, MaxPooling1D, Flatten, concatenate, Dense, Dropout
