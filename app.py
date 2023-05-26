@@ -75,6 +75,13 @@ def add_dummies_to_new_data(new_data_df):
 
     return new_data
 
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers import Input, Embedding, SpatialDropout1D, LSTM, Conv1D, MaxPooling1D, Flatten, concatenate, Dense, Dropout
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import metrics
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Convertir les textes en séquences de nombres
 tokenizer = Tokenizer(num_words=1000)
