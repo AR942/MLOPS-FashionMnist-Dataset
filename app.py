@@ -247,3 +247,5 @@ for groupe in groupes:
     data[f'groupe_{mot1}_{mot2}'] = condition
 
 print(data)
+
+df[time_col] = pd.to_datetime(df[time_col], format="%Y-%m-%d %H:%M:%S.%f%z")
