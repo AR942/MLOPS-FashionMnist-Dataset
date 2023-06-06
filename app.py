@@ -174,3 +174,17 @@ def are_similar_words(word1, word2):
 all_words = get_unique_words(df['text'])
 similar_words = find_similar_words(all_words)
 
+import pandas as pd
+import re
+
+# Liste des mots à détecter
+mots_detecter = ['CV', 'Candidature', 'Proposition']
+
+# Exemple de données
+data = pd.DataFrame({'attachment': ['CV John Doe.pdf', 'Candidature_Smith.docx', 'Contrat BP 2023.pdf', 'Leasing Agreement.doc', 'bpli.txt']})
+
+# Vérification des mots dans la colonne "attachment"
+regex = r'(?i)(?:\b(?:{})\b.*){{2,}}'.format('|'.join(mots_detecter))
+data['presence_mots'] = data['attachment'].str.contains(regex, regex=True)
+
+print(data)
