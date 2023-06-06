@@ -15,7 +15,11 @@ app = Flask(__name__)
 model_path = "./model/model.h5"
 
 model = tf.keras.models.load_model(model_path)
-
+'_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out',
+       'avg_bytes_in', 'avg_bytes_out', 'min_bytes_in', 'min_bytes_out',
+       'max_bytes_in', 'max_bytes_out', 'count', 'hour_of_day', 'day_of_week',
+       'duration_since_last_query', 'duration_since_session_start', 'session',
+       'bytes_ratio', 'request_rate', 'is_messagerie'
 
 
 @app.route("/")
