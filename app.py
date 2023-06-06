@@ -287,3 +287,41 @@ df.drop(columns=[time_col], inplace=True)
 # Afficher le DataFrame mis à jour
 print(df.head())
 
+
+import pandas as pd
+
+# Calcul de la longueur des dhost
+df['dhost_length'] = df['dhost'].apply(lambda x: len(x))
+
+# Comptage du nombre de points dans les dhost
+df['dhost_num_dots'] = df['dhost'].apply(lambda x: x.count('.'))
+
+# Nombre d'occurrences d'un hôte spécifique
+df['host_occurrences'] = df.groupby('dhost')['dhost'].transform('count')
+
+# Nombre d'hôtes uniques visités par utilisateur
+df['unique_hosts_per_user'] = df.groupby('user')['dhost'].transform('nunique')
+
+# Fréquence des interactions avec un hôte spécifique
+df['host_interaction_frequency'] = df.groupby(['user', 'dhost'])['dhost'].transform('count') / df.groupby('user')['dhost'].transform('count')
+
+# Indicateur de présence d'un hôte spécifique
+hosts_to_check = ['example.com', 'google.com', 'yahoo.com']
+for host in hosts_to_check:
+    df[f'host_{host}_presence'] = df['dhost'].apply(lambda x: 1 if host in x else 0)
+
+# Longueur moyenne des noms d'hôtes
+df['average_host_length'] = df.groupby('user')['dhost_length'].transform('mean')
+
+# Nombre de sous-domaines
+df['subdomain_count'] = df['dhost'].apply(lambda x: x.count('.') + 1)
+
+# Occurrence de certains motifs dans les noms d'hôtes
+keywords_to_check = ['phishing', 'malware', 'bank']
+for keyword in keywords_to_check:
+    df[f'keyword_{keyword}_presence'] = df['dhost'].apply(lambda x: 1 if keyword in x else 0)
+
+# Affichage du DataFrame avec les nouvelles caractéristiques
+print(df.head())
+
+
