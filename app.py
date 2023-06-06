@@ -220,3 +220,30 @@ for groupe in groupes:
 
 print(data)
 
+import pandas as pd
+
+# Groupes de mots à détecter
+groupes = [
+    ['candidat', 'CV'],
+    ['candidat', 'proposition'],
+    ['candidat', 'internship'],
+    ['CV', 'internship'],
+    ['CV', 'stage']
+]
+
+# Exemple de données
+data = pd.DataFrame({
+    'subject': ['CV pour candidat', 'Offre de proposition', 'Stage pour candidat', 'CV et stage'],
+    'attachment': ['CV_John_Doe.pdf', 'CV_Candidate.docx', 'Proposition.pdf', 'CV_Internship.doc']
+})
+
+# Concaténation des colonnes "subject" et "attachment"
+data['texte_concatene'] = data['subject'] + ' ' + data['attachment']
+
+# Vérification des groupes de mots dans la colonne "texte_concatene"
+for groupe in groupes:
+    mot1, mot2 = groupe
+    condition = data['texte_concatene'].str.contains(fr'\b{mot1}\b', case=False) & data['texte_concatene'].str.contains(fr'\b{mot2}\b', case=False)
+    data[f'groupe_{mot1}_{mot2}'] = condition
+
+print(data)
