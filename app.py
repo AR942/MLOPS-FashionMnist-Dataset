@@ -248,4 +248,38 @@ for groupe in groupes:
 
 print(data)
 
+import pandas as pd
+
+# Convertir la colonne "_time" en format de date et heure
 df[time_col] = pd.to_datetime(df[time_col], format="%Y-%m-%d %H:%M:%S.%f%z")
+
+# Créer une fonctionnalité pour représenter l'heure de la journée
+df['hour_of_day'] = df[time_col].dt.hour
+
+# Créer une fonctionnalité pour représenter le jour de la semaine
+df['day_of_week'] = df[time_col].dt.dayofweek
+
+# Trier le DataFrame par utilisateur et horodatage
+df.sort_values(by=['user', time_col], inplace=True)
+
+# Créer une fonctionnalité pour représenter les sessions de chaque utilisateur
+df['session'] = (df['user'] != df['user'].shift()).cumsum()
+
+# Créer une fonctionnalité pour représenter le ratio de bytes
+df['bytes_ratio'] = df['sumbytesin'] / df['sumbytesout']
+
+# Créer une fonctionnalité pour représenter le taux de requêtes
+df['request_rate'] = df['countofrequests'] / (df[time_col] - df.groupby('user')[time_col].transform('first')).dt.total_seconds()
+
+# Créer une fonctionnalité pour représenter la durée depuis la première requête
+df['duration_since_first_request'] = (df[time_col] - df.groupby('user')[time_col].transform('first')).dt.total_seconds()
+
+# Créer une fonctionnalité pour représenter la durée depuis la dernière requête
+df['duration_since_last_request'] = (df[time_col] - df.groupby('user')[time_col].shift()).dt.total_seconds()
+
+# Supprimer les colonnes inutiles
+df.drop(columns=[time_col], inplace=True)
+
+# Afficher le DataFrame mis à jour
+print(df.head())
+
