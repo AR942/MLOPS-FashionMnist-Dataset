@@ -188,3 +188,35 @@ regex = r'(?i)(?:\b(?:{})\b.*){{2,}}'.format('|'.join(mots_detecter))
 data['presence_mots'] = data['attachment'].str.contains(regex, regex=True)
 
 print(data)
+
+
+import pandas as pd
+
+# Groupes de mots à détecter
+groupes = [
+    ['candidat', 'CV'],
+    ['candidat', 'proposition'],
+    ['candidat', 'internship'],
+    ['CV', 'internship'],
+    ['CV', 'stage']
+]
+
+# Exemple de données
+data = pd.DataFrame({
+    'subject': ['CV pour candidat', 'Offre de proposition', 'Stage pour candidat', 'CV et stage'],
+    'attachment': ['CV_John_Doe.pdf', 'CV_Candidate.docx', 'Proposition.pdf', 'CV_Internship.doc']
+})
+
+# Vérification des groupes de mots dans les colonnes "subject" et "attachment"
+for groupe in groupes:
+    mot1, mot2 = groupe
+    conditions = [
+        (data['subject'].str.contains(fr'\b{mot1}\b', case=False) & data['attachment'].str.contains(fr'\b{mot2}\b', case=False)),
+        (data['subject'].str.contains(fr'\b{mot2}\b', case=False) & data['attachment'].str.contains(fr'\b{mot1}\b', case=False)),
+        (data['subject'].str.contains(fr'\b{mot1}\b', case=False) & ~data['attachment'].str.contains(fr'\b{mot2}\b', case=False)),
+        (data['attachment'].str.contains(fr'\b{mot1}\b', case=False) & ~data['subject'].str.contains(fr'\b{mot2}\b', case=False))
+    ]
+    data[f'groupe_{mot1}_{mot2}'] = pd.Series(conditions).any()
+
+print(data)
+
