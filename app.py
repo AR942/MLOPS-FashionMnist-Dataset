@@ -322,6 +322,59 @@ for keyword in keywords_to_check:
     df[f'keyword_{keyword}_presence'] = df['dhost'].apply(lambda x: 1 if keyword in x else 0)
 
 # Affichage du DataFrame avec les nouvelles caractéristiques
+
+
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Sélection des colonnes à utiliser pour l'autoencodeur
+columns_to_encode = ['dhost_length', 'dhost_num_dots', 'host_occurrences', 'unique_hosts_per_user',
+                     'host_interaction_frequency', 'average_host_length', 'subdomain_count']
+
+# Sélection des données pour l'autoencodeur
+data = df_[columns_to_encode].values
+
+# Standardisation des données
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data)
+
+# Division des données en ensembles d'entraînement et de test
+X_train, X_test = train_test_split(data_scaled, test_size=0.2, random_state=42)
+
+# Construction de l'architecture de l'autoencodeur
+input_dim = X_train.shape[1]
+encoding_dim = 4
+
+input_layer = tf.keras.Input(shape=(input_dim,))
+encoder = tf.keras.layers.Dense(encoding_dim, activation='relu')(input_layer)
+decoder = tf.keras.layers.Dense(input_dim, activation='sigmoid')(encoder)
+autoencoder = tf.keras.Model(inputs=input_layer, outputs=decoder)
+
+# Compilation du modèle de l'autoencodeur
+autoencoder.compile(optimizer='adam', loss='mse')
+
+# Entraînement de l'autoencodeur
+autoencoder.fit(X_train, X_train, epochs=10, batch_size=32, shuffle=True, validation_data=(X_test, X_test))
+
+# Reconstruction des données avec l'autoencodeur
+reconstructed_data = autoencoder.predict(data_scaled)
+
+# Calcul de l'erreur de reconstruction
+mse = np.mean(np.power(data_scaled - reconstructed_data, 2), axis=1)
+
+# Ajout de l'erreur de reconstruction au DataFrame
+df_['reconstruction_error'] = mse
+
+# Détection des cas anormaux
+threshold = np.percentile(df_['reconstruction_error'], 95)
+df_['is_anomaly'] = df_['reconstruction_error'].apply(lambda x: 1 if x > threshold else 0)
+
+# Affichage des résultats
+print(df_.head())
+
 print(df.head())
 
 
