@@ -372,9 +372,57 @@ df_['reconstruction_error'] = mse
 threshold = np.percentile(df_['reconstruction_error'], 95)
 df_['is_anomaly'] = df_['reconstruction_error'].apply(lambda x: 1 if x > threshold else 0)
 
-# Affichage des résultats
-print(df_.head())
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+File /usr/local/lib/python3.9/site-packages/pandas/core/indexes/base.py:3802, in Index.get_loc(self, key, method, tolerance)
+   3801 try:
+-> 3802     return self._engine.get_loc(casted_key)
+   3803 except KeyError as err:
 
-print(df.head())
+File /usr/local/lib/python3.9/site-packages/pandas/_libs/index.pyx:138, in pandas._libs.index.IndexEngine.get_loc()
+
+File /usr/local/lib/python3.9/site-packages/pandas/_libs/index.pyx:165, in pandas._libs.index.IndexEngine.get_loc()
+
+File pandas/_libs/hashtable_class_helper.pxi:5745, in pandas._libs.hashtable.PyObjectHashTable.get_item()
+
+File pandas/_libs/hashtable_class_helper.pxi:5753, in pandas._libs.hashtable.PyObjectHashTable.get_item()
+
+KeyError: 0
+
+The above exception was the direct cause of the following exception:
+
+KeyError                                  Traceback (most recent call last)
+Cell In[16], line 7
+      5 distances = np.zeros(len(df_embed))
+      6 for i in range(len(df_embed)):
+----> 7     distances[i] = min([euclidean(df_embed[i], df_mebed[j]) for j in indices_target_1])
+     10 seuil = 0.1
+     12 indices_point_proches = np.where(distances <= seuil)[0]
+
+Cell In[16], line 7, in <listcomp>(.0)
+      5 distances = np.zeros(len(df_embed))
+      6 for i in range(len(df_embed)):
+----> 7     distances[i] = min([euclidean(df_embed[i], df_mebed[j]) for j in indices_target_1])
+     10 seuil = 0.1
+     12 indices_point_proches = np.where(distances <= seuil)[0]
+
+File /usr/local/lib/python3.9/site-packages/pandas/core/frame.py:3807, in DataFrame.__getitem__(self, key)
+   3805 if self.columns.nlevels > 1:
+   3806     return self._getitem_multilevel(key)
+-> 3807 indexer = self.columns.get_loc(key)
+   3808 if is_integer(indexer):
+   3809     indexer = [indexer]
+
+File /usr/local/lib/python3.9/site-packages/pandas/core/indexes/base.py:3804, in Index.get_loc(self, key, method, tolerance)
+   3802     return self._engine.get_loc(casted_key)
+   3803 except KeyError as err:
+-> 3804     raise KeyError(key) from err
+   3805 except TypeError:
+   3806     # If we have a listlike key, _check_indexing_error will raise
+   3807     #  InvalidIndexError. Otherwise we fall through and re-raise
+   3808     #  the TypeError.
+   3809     self._check_indexing_error(key)
+
+KeyError: 0
 
 
