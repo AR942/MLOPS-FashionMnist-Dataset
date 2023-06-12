@@ -461,4 +461,35 @@ def create_features(df):
     for col in columns:
         if len(df[col]) != length:
             raise ValueError("La longueur de la colonne '{}' ne correspond pas à celle des autres colonnes.".format(col))
+       
+      
+import pandas as pd
+
+def extract_user_behavior_features(df):
+    # Nombre de requêtes par session
+    df['requests_per_session'] = df.groupby('user')['count'].transform('sum')
+    
+    # Durée de la session
+    df['session_duration'] = df.groupby('user')['timestamp'].transform(lambda x: x.max() - x.min())
+    
+    # Heures d'activité
+    df['hour_of_day'] = df['timestamp'].dt.hour
+    df['active_in_morning'] = (df['hour_of_day'] >= 6) & (df['hour_of_day'] < 12)
+    df['active_in_afternoon'] = (df['hour_of_day'] >= 12) & (df['hour_of_day'] < 18)
+    df['active_in_evening'] = (df['hour_of_day'] >= 18) & (df['hour_of_day'] < 24)
+    
+    # Variation de comportement
+    df['sum_bytes_in_diff'] = df.groupby('user')['sum_bytes_in'].transform(lambda x: x.diff().shift(-1))
+    df['sum_bytes_out_diff'] = df.groupby('user')['sum_bytes_out'].transform(lambda x: x.diff().shift(-1))
+    df['avg_bytes_in_diff'] = df.groupby('user')['avg_bytes_in'].transform(lambda x: x.diff().shift(-1))
+    df['avg_bytes_out_diff'] = df.groupby('user')['avg_bytes_out'].transform(lambda x: x.diff().shift(-1))
+    
+    # Activité inter-session
+    df['inter_session_time'] = df.groupby('user')['timestamp'].transform(lambda x: x.diff().shift(-1))
+    
+    return df
+
+# Utilisation de la fonction pour extraire les fonctionnalités de comportement utilisateur
+df_features = extract_user_behavior_features(df)
+
 
