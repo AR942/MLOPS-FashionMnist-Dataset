@@ -454,3 +454,11 @@ def create_features(df):
 
     return df
 
+
+ length = len(df['user'])
+    columns = ['_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out', 'avg_bytes_in', 'avg_bytes_out',
+               'min_bytes_in', 'min_bytes_out', 'max_bytes_in', 'max_bytes_out', 'count']
+    for col in columns:
+        if len(df[col]) != length:
+            raise ValueError("La longueur de la colonne '{}' ne correspond pas à celle des autres colonnes.".format(col))
+
