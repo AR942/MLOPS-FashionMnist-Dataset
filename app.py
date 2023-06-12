@@ -429,3 +429,28 @@ KeyError: 0
 '_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out',
        'avg_bytes_in', 'avg_bytes_out', 'min_bytes_in', 'min_bytes_out',
        'max_bytes_in', 'max_bytes_out', 'count'
+       
+       
+       import pandas as pd
+import numpy as np
+
+def create_features(df):
+    # 3. Statistiques des octets
+    df['diff_bytes_in'] = df['max_bytes_in'] - df['min_bytes_in']
+    df['diff_bytes_out'] = df['max_bytes_out'] - df['min_bytes_out']
+    df['sum_bytes_total'] = df['sum_bytes_in'] + df['sum_bytes_out']
+    df['avg_bytes_total'] = (df['avg_bytes_in'] + df['avg_bytes_out']) / 2
+
+    # 4. Fréquence des requêtes
+    df['requests_per_hour'] = df['count'] / 1  # Modifier ici la période de temps si nécessaire
+
+    # 7. Tendance des requêtes
+    df['_time'] = pd.to_datetime(df['_time'])  # Conversion en type de données datetime si nécessaire
+    df['timestamp'] = df['_time'].astype(int) / 10**9  # Conversion en timestamp
+    df['linear_regression_count'] = df.groupby('user')['count'].transform(lambda x: np.polyfit(df['timestamp'], x, 1)[0])
+
+    # Calculer le nombre total de requêtes pour chaque utilisateur
+    df['total_requests_per_user'] = df.groupby('user')['count'].transform('sum')
+
+    return df
+
