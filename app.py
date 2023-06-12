@@ -426,3 +426,6 @@ File /usr/local/lib/python3.9/site-packages/pandas/core/indexes/base.py:3804, in
 KeyError: 0
 
 
+'_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out',
+       'avg_bytes_in', 'avg_bytes_out', 'min_bytes_in', 'min_bytes_out',
+       'max_bytes_in', 'max_bytes_out', 'count'
