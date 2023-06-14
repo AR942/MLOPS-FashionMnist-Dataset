@@ -493,3 +493,56 @@ def extract_user_behavior_features(df):
 df_features = extract_user_behavior_features(df)
 
 
+user_features = df_filtered.groupby('user').agg({
+    'count': ['mean', 'std'],
+    'sum_bytes_in': ['mean', 'std'],
+    'sum_bytes_out': ['mean', 'std'],
+    'avg_bytes_in': ['mean', 'std'],
+    'avg_bytes_out': ['mean', 'std'],
+    'min_bytes_in': ['mean', 'std'],
+    'min_bytes_out': ['mean', 'std'],
+    'max_bytes_in': ['mean', 'std'],
+    'max_bytes_out': ['mean', 'std'],
+    'var_bytes_in': ['mean', 'std'],
+    'var_bytes_out': ['mean', 'std'],
+    'unique_dhosts': ['mean', 'std'],
+    'diff_bytes_in': ['mean', 'std'],
+    'diff_bytes_out': ['mean', 'std'],
+    'sum_bytes_total': ['mean', 'std'],
+    'avg_bytes_total': ['mean', 'std'],
+    'requests_per_hour': ['mean', 'std'],
+    'linear_regression_count': ['mean', 'std'],
+    'total_requests_per_user': ['mean', 'std'],
+    'requests_per_session': ['mean', 'std'],
+    'session_duration': ['mean', 'std'],
+    'hour_of_day': ['mean', 'std'],
+    'active_in_morning': ['mean', 'std'],
+    'active_in_afternoon': ['mean', 'std'],
+    'active_in_evening': ['mean', 'std'],
+    'sum_bytes_in_diff': ['mean', 'std'],
+    'sum_bytes_out_diff': ['mean', 'std'],
+    'avg_bytes_in_diff': ['mean', 'std'],
+    'avg_bytes_out_diff': ['mean', 'std'],
+    'inter_session_time': ['mean', 'std']
+})
+
+
+# Normalisation des caractéristiques
+scaler = StandardScaler()
+user_features_scaled = scaler.fit_transform(user_features)
+
+# Réduction de dimension avec PCA
+pca = PCA(n_components=2)
+user_features_pca = pca.fit_transform(user_features_scaled)
+
+# Entraînement du modèle OneClassSVM
+svm_model = OneClassSVM()
+svm_model.fit(user_features_pca)
+
+# Prédiction des utilisateurs suspects
+user_features['anomaly_score'] = svm_model.decision_function(user_features_pca)
+user_features['is_suspect'] = user_features['anomaly_score'] < 0
+
+# Affichage des utilisateurs suspects
+suspect_users = user_features[user_features['is_suspect']]
+print(suspect_users)
