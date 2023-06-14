@@ -575,3 +575,15 @@ user_features['is_suspect'] = user_features['anomaly_score'] < 0
 # Affichage des utilisateurs suspects
 suspect_users = user_features[user_features['is_suspect']]
 print(suspect_users)
+
+
+'_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out',
+       'avg_bytes_in', 'avg_bytes_out', 'min_bytes_in', 'min_bytes_out',
+       'max_bytes_in', 'max_bytes_out', 'count', 'diff_bytes_in',
+       'diff_bytes_out', 'sum_bytes_total', 'avg_bytes_total',
+       'sum_bytes_in_diff', 'sum_bytes_out_diff', 'avg_bytes_in_diff',
+       'avg_bytes_out_diff', 'timestamp', 'linear_regression_count',
+       'total_requests_per_user', 'inter_session_time', 'hour_of_day',
+       'day_of_week', 'is_weekend', 'is_night', 'duration_since_last_query',
+       'duration_since_session_start', 'session', 'bytes_ratio',
+       'request_rate', 'is_messagerie'
