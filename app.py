@@ -575,6 +575,37 @@ user_features['is_suspect'] = user_features['anomaly_score'] < 0
 # Affichage des utilisateurs suspects
 suspect_users = user_features[user_features['is_suspect']]
 print(suspect_users)
+from sklearn.ensemble import IsolationForest
+
+# Sélection des colonnes pertinentes pour la détection des utilisateurs malveillants
+selected_columns = ['sum_bytes_in', 'sum_bytes_out', 'avg_bytes_in', 'avg_bytes_out',
+                    'count', 'diff_bytes_in', 'diff_bytes_out', 'sum_bytes_total',
+                    'avg_bytes_total', 'sum_bytes_in_diff', 'sum_bytes_out_diff',
+                    'avg_bytes_in_diff', 'avg_bytes_out_diff', 'total_requests_per_user',
+                    'inter_session_time', 'hour_of_day', 'day_of_week', 'is_weekend',
+                    'is_night', 'duration_since_last_query', 'duration_since_session_start',
+                    'session', 'bytes_ratio', 'request_rate', 'is_messagerie']
+
+# Extraction des caractéristiques pertinentes pour chaque utilisateur
+user_features = df.groupby('user')[selected_columns].agg(['sum', 'mean', 'max', 'min'])
+# Aplatir les colonnes multi-niveaux
+user_features.columns = user_features.columns.to_flat_index()
+
+# Aplatir les colonnes multi-niveaux
+user_features.columns = ['_'.join(col) for col in user_features.columns]
+
+# Entraînement du modèle Isolation Forest par utilisateur
+model = IsolationForest(contamination=0.05)  # Définir le niveau de contamination en fonction de votre cas
+model.fit(user_features)
+
+# Prédiction des utilisateurs malveillants
+predictions = model.predict(user_features)
+
+# Filtrage des utilisateurs malveillants
+malicious_users = user_features[predictions == -1].index
+
+# Affichage des résultats
+print(malicious_users)
 
 
 '_time', 'user', 'dhost', 'sum_bytes_in', 'sum_bytes_out',
