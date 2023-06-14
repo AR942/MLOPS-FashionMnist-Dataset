@@ -526,6 +526,35 @@ user_features = df_filtered.groupby('user').agg({
     'inter_session_time': ['mean', 'std']
 })
 
+from sklearn.ensemble import IsolationForest
+
+# Agrégation des caractéristiques par utilisateur
+user_features = df.groupby('user').agg({
+    'sum_bytes_in': 'sum',
+    'sum_bytes_out': 'sum',
+    'avg_bytes_in': 'mean',
+    'avg_bytes_out': 'mean',
+    # Autres caractéristiques agrégées
+}).reset_index()
+
+# Séparation des caractéristiques et de la cible
+X = user_features.drop('user', axis=1)
+
+# Création et entraînement du modèle Isolation Forest
+model = IsolationForest(contamination=0.05)  # Définir le niveau de contamination en fonction de votre cas
+model.fit(X)
+
+# Prédiction des utilisateurs suspects
+predictions = model.predict(X)
+
+# Ajout des prédictions au DataFrame des caractéristiques des utilisateurs
+user_features['anomaly'] = predictions
+
+# Filtrage des utilisateurs suspects
+suspect_users = user_features[user_features['anomaly'] == -1]
+
+# Affichage des résultats
+print(suspect_users)
 
 # Normalisation des caractéristiques
 scaler = StandardScaler()
