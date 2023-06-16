@@ -68,33 +68,45 @@ data['filename_length'] = data['dlpfilename'].apply(len)
 data['classification_position'] = data['feature_classification'] + '_' + data['feature_position_title']
 data['download_upload_ratio'] = data['feature_download'] / data['feature_upload']
 
-NC                                                  60
-BPCE                                                15
-MIROVA                                              15
-NATIXIS BANK JSC                                     4
-BPCE-IT                                              4
-MIROVA UK                                            4
-NATIXIS                                              3
-USA                                                  3
-NFA                                                  3
-NATIXIS INVESTMENT MANAGERS INTERNATIONAL            3
-Ostrum                                               2
-NATIXIS IM UK LIMITED                                2
-NATIXIS LONDON BRANCH                                2
-NATIXIS NORTH AMERICA LLC                            2
-BPCE INFOGERANCE ET TECHNOLOGIES                     1
-NATIXIS INVESTMENT MANAGERS                          1
-MIROVA US LLC                                        1
-NATIXIS INTEREPARGNE                                 1
-BPCE LEASE                                           1
-BIMPLI                                               1
-NIE                                                  1
-NATIXIS IM, SUCURSAL EN ESPAÑA                       1
-NATIXIS - SUCURSAL EM PORTUGAL                       1
-HOLDING PARIS                                        1
-CIB_London                                           1
-NLE                                                  1
-COMPAGNIE EUROPEENNE DE GARANTIES ET CAUTIONS SA     1
-BPCE FINANCEMENT                                     1
-SEVENTURE PARTNERS                                   1
-THEMATICS ASSET MANAGEMENT                           1
+import pandas as pd
+
+# Création d'un DataFrame avec les données d'origine
+data = pd.DataFrame({'raw_metier': ['NC', 'BPCE', 'MIROVA', 'NATIXIS BANK JSC', 'BPCE-IT', 'MIROVA UK', 'NATIXIS', 'USA', 'NFA',
+                                   'NATIXIS INVESTMENT MANAGERS INTERNATIONAL', 'Ostrum', 'NATIXIS IM UK LIMITED',
+                                   'NATIXIS LONDON BRANCH', 'NATIXIS NORTH AMERICA LLC', 'BPCE INFOGERANCE ET TECHNOLOGIES',
+                                   'NATIXIS INVESTMENT MANAGERS', 'MIROVA US LLC', 'NATIXIS INTEREPARGNE', 'BPCE LEASE',
+                                   'BIMPLI', 'NIE', 'NATIXIS IM, SUCURSAL EN ESPAÑA', 'NATIXIS - SUCURSAL EM PORTUGAL',
+                                   'HOLDING PARIS', 'CIB_London', 'NLE', 'COMPAGNIE EUROPEENNE DE GARANTIES ET CAUTIONS SA',
+                                   'BPCE FINANCEMENT', 'SEVENTURE PARTNERS', 'THEMATICS ASSET MANAGEMENT']})
+
+# Regroupement des "raw metiers"
+regroupements = {
+    'MIROVA UK': 'MIROVA',
+    'BPCE-IT': 'BPCE',
+    'BPCE INFOGERANCE ET TECHNOLOGIES': 'BPCE',
+    'BPCE LEASE': 'BPCE',
+    'BPCE FINANCEMENT': 'BPCE',
+    'NATIXIS BANK JSC': 'NATIXIS',
+    'NATIXIS IM UK LIMITED': 'NATIXIS',
+    'NATIXIS LONDON BRANCH': 'NATIXIS',
+    'NATIXIS NORTH AMERICA LLC': 'NATIXIS',
+    'NATIXIS INVESTMENT MANAGERS INTERNATIONAL': 'NATIXIS',
+    'NATIXIS IM, SUCURSAL EN ESPAÑA': 'NATIXIS',
+    'NATIXIS - SUCURSAL EM PORTUGAL': 'NATIXIS',
+    'CIB_London': 'NATIXIS'
+}
+
+data['raw_metier'] = data['raw_metier'].apply(lambda x: regroupements.get(x, x))
+
+# Regrouper les catégories restantes sous la catégorie "Other"
+categories_autres = data['raw_metier'].unique()
+categories_conservees = ['MIROVA', 'BPCE', 'NATIXIS']
+
+data['raw_metier'] = data['raw_metier'].apply(lambda x: x if x in categories_conservees else 'Other')
+
+# Répartition des "raw metiers" après les regroupements
+repartition = data['raw_metier'].value_counts().reset_index()
+repartition.columns = ['raw_metier', 'count']
+
+print(repartition)
+
