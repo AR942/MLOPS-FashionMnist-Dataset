@@ -16,3 +16,55 @@ tensorflow==2.11.0
        'feature_uploadc2', 'feature_uploadc3', 'feature_uploadc4'
 
 
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Chargement des données
+data = pd.read_csv("votre_fichier.csv")
+
+# Feature Engineering
+
+# Extraction des caractéristiques temporelles
+data['alerte_fin_contrat_duration'] = (pd.to_datetime(data['date_alerte']) - pd.to_datetime(data['dateFinContrat'])).dt.days
+data['alerte_month'] = pd.to_datetime(data['date_alerte']).dt.month
+data['alerte_day_of_week'] = pd.to_datetime(data['date_alerte']).dt.dayofweek
+
+# Traitement des colonnes texte
+data['dhost_length'] = data['dhost'].apply(len)
+data['user_agent_length'] = data['user_agent'].apply(len)
+data['metier_keyword_count'] = data['raw_metier'].str.lower().str.count('votre_mot_clé')  # Remplacez 'votre_mot_clé' par le mot-clé pertinent
+data['filename_length'] = data['dlpfilename'].apply(len)
+
+# Caractéristiques basées sur les interactions entre les variables
+data['classification_position'] = data['feature_classification'] + '_' + data['feature_position_title']
+data['download_upload_ratio'] = data['feature_download'] / data['feature_upload']
+
+# Encodage des variables catégorielles
+data = pd.get_dummies(data, columns=['feature_department', 'feature_position_title', 'feature_downloadc1', 'feature_downloadc2', 'feature_downloadc3', 'feature_downloadc4', 'feature_uploadc1', 'feature_uploadc2', 'feature_uploadc3', 'feature_uploadc4'])
+
+# Traitement des colonnes de texte supplémentaires
+text_columns = ['iup', 'dlpdata', 'dlpmeta', 'raw_metier']
+for column in text_columns:
+    tfidf = TfidfVectorizer()
+    tfidf_features = tfidf.fit_transform(data[column].astype(str))
+    tfidf_df = pd.DataFrame(tfidf_features.toarray(), columns=[column + '_' + c for c in tfidf.get_feature_names()])
+    data = pd.concat([data, tfidf_df], axis=1)
+
+ Extraction des caractéristiques temporelles
+data['alerte_fin_contrat_duration'] = (pd.to_datetime(data['date_alerte']) - pd.to_datetime(data['dateFinContrat'])).dt.days
+data['alerte_month'] = pd.to_datetime(data['date_alerte']).dt.month
+data['alerte_day_of_week'] = pd.to_datetime(data['date_alerte']).dt.dayofweek
+
+# Traitement des colonnes texte
+data['dhost_length'] = data['dhost'].apply(len)
+data['user_agent_length'] = data['user_agent'].apply(len)
+data['metier_keyword_count'] = data['raw_metier'].str.lower().str.count('votre_mot_clé')  # Remplacez 'votre_mot_clé' par le mot-clé pertinent
+data['filename_length'] = data['dlpfilename'].apply(len)
+
+# Caractéristiques basées sur les interactions entre les variables
+data['classification_position'] = data['feature_classification'] + '_' + data['feature_position_title']
+data['download_upload_ratio'] = data['feature_download'] / data['feature_upload']
+
