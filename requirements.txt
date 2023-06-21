@@ -117,5 +117,16 @@ print(repartition)
        'HoT Biolite carbon credit prefinancing_v4.docx Kudura Advisory Proposal - Follow Ups.pptx unused',
        'Natixis_IF_Lux_I_Full Prospectus_Luxembourg_21022023 (2).pdf OpenFigiFunds_Bulk submission_Natixis template_Valeur_14.03.23_NIMI.xlsx'
 
-((?i)(\b)0(\b)|(?i)(\b)Abonnement(\b)|(?i)(\b)Bulletin_Salaire(\b)|(?i)(\b)Vaccins(\b)|(?i)(\b)blob(\b)|(?i)(\b)booking(\b)|(?i)(\b)carte_tiers_payant(\b)|(?i)(\b)cerfa(\b)|(?i)(\b)curriculum(\b)|(?i)(\b)devoir_gestion(\b)|(?i)(\b)image.jpg(\b)|(?i)(\b)image.png(\b)|(?i)(\b)impot(\b)|(?i)(\b)lettre_motivation(\b)|(?i)(\b)mission(\b)|(?i)(\b)payslip(\b)|(?i)(\b)permis(\b)|(?i)(\b)stage(\b)|(?i)(^|[^a-z]+|$)*.jpeg(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)*.png(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)Attestation assurance(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)Bulletin notes(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)Bulletin_Salaire(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)CDI(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)CNI(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)CSE(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)CV(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)LIVRET FAMILLE(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)LM(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)Passeport(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)bilan([^a-z]+.+[^a-z]+|[^a-z]+)professionnel(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)carte Bimpli(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)carte([^a-z]+.+[^a-z]+|[^a-z]+)grise(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)entretiens?(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)fiche([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)poste(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)lettre([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)motivation(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)lettre([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)recommandation(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)lettre([^a-z]+.+[^a-z]+|[^a-z]+)explicative(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)lettre([^a-z]+.+[^a-z]+|[^a-z]+)hebdomadaire(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)livret([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)famille(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)locations?(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)offres?([^a-z]+.+[^a-z]+|[^a-z]+)alternance(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)permis de construire(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)photo?([^a-z]+.+[^a-z]+|[^a-z]+)toilette(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)poste([^a-z]+.+[^a-z]+|[^a-z]+)assistant(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)resume(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)senior(^|[^a-z]+|$)|(?i)(^|[^a-z]+|$)stage(^|[^a-z]+|$)|(?i)IMG(^|[^a-z]+|$)*.jpg(^|[^a-z]+|$)|(?i)Image(^|[^a-z]+|$)*.png(^|[^a-z]+|$))
+for keyword in re.findall(r'\b\w+\b', regex):
+    data['has_' + keyword] = data['dlpfilename'].str.contains(keyword, case=False, regex=False).astype(int)
+
+# Nombre de mots clés whitelistés
+data['whitelist_keywords_count'] = data['dlpfilename'].str.count(regex)
+
+# Ratio de mots clés whitelistés
+data['whitelist_keywords_ratio'] = data['whitelist_keywords_count'] / data['dlpfilename'].str.len()
+
+# Fréquence des mots clés whitelistés
+keywords_frequency = data['dlpfilename'].str.count(regex)
+data['whitelist_keywords_frequency'] = data['dlpfilename'].str.count(regex)
 
