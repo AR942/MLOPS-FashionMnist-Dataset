@@ -178,3 +178,27 @@ for keywords in keyword_pairs:
     data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
 
 
+from sklearn.svm import OneClassSVM
+from sklearn.neighbors import LocalOutlierFactor
+
+X['target'] = y
+df_neg = X[X['target'] == 1]
+df_pos = X[X['target'] == 0]
+
+oversample = SMOTE(sampling_strategy=0.8,random_state=42)
+X_train, y_train = oversample.fit_resample(df_neg[FEATURES], y)
+print(Counter(y_train))
+
+df_neg_train, df_neg_test = train_test_split(df_neg[FEATURES], test_size=0.2, random_state=42)
+scaler = StandardScaler()
+scaler.fit(df_neg_train)
+df_neg_train = pd.DataFrame(scaler.transform(df_neg_train), columns=df_neg_train.columns)
+df_neg_test = pd.DataFrame(scaler.transform(df_neg_test), columns=df_neg_train.columns)
+clf = OneClassSVM(nu=0.3)
+clf.fit(df_neg_train[FEATURES])
+
+df_test = pd.concat([df_pos, df_neg_test])
+df_test_bis = df_test[FEATURES]
+df_test_bis = pd.DataFrame(scaler.transform(df_test_bis), columns=df_neg_train.columns)
+df_test['pred'] = clf.predict(df_test_bis[FEATURES])
+df_test.pred.value_counts()
