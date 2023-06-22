@@ -132,21 +132,49 @@ data['whitelist_keywords_frequency'] = data['dlpfilename'].str.count(regex)
 
 import re
 
-# Liste des motifs à rechercher
-regex_motifs = r'(?i)\b(0|Abonnement|Bulletin_Salaire|Vaccins|blob|booking|carte_tiers_payant|cerfa|curriculum|' \
-               r'devoir_gestion|image.jpg|image.png|impot|lettre_motivation|mission|payslip|permis|stage|' \
-               r'Attestation assurance|Bulletin notes|Bulletin_Salaire|CDI|CNI|CSE|CV|LIVRET FAMILLE|LM|Passeport|' \
-               r'bilan([^a-z]+.+[^a-z]+|[^a-z]+)professionnel|carte Bimpli|carte([^a-z]+.+[^a-z]+|[^a-z]+)grise|' \
-               r'entretiens?|fiche([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)poste|' \
-               r'lettre([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)motivation|' \
-               r'lettre([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)recommandation|' \
-               r'lettre([^a-z]+.+[^a-z]+|[^a-z]+)explicative|lettre([^a-z]+.+[^a-z]+|[^a-z]+)hebdomadaire|' \
-               r'livret([^a-z]+.+[^a-z]+|[^a-z]+)de([^a-z]+.+[^a-z]+|[^a-z]+)famille|locations?|' \
-               r'offres?([^a-z]+.+[^a-z]+|[^a-z]+)alternance|permis de construire|photo?([^a-z]+.+[^a-z]+|[^a-z]+)' \
-               r'toilette|poste([^a-z]+.+[^a-z]+|[^a-z]+)assistant|resume|senior|stage|' \
-               r'IMG([^a-z]+|$)*.jpg([^a-z]+|$)|Image([^a-z]+|$)*.png([^a-z]+|$))\b'
+# Liste des mots-clés whitelistés
+whitelist_keywords = [
+    '0', 'Abonnement', 'Bulletin_Salaire', 'Vaccins', 'blob', 'booking', 'carte_tiers_payant', 'cerfa', 'curriculum',
+    'devoir_gestion', 'image.jpg', 'image.png', 'impot', 'lettre_motivation', 'mission', 'payslip', 'permis', 'stage',
+    'Attestation assurance', 'Bulletin notes', 'Bulletin_Salaire', 'CDI', 'CNI', 'CSE', 'CV', 'LIVRET FAMILLE', 'LM',
+    'Passeport', 'bilan', 'professionnel', 'carte Bimpli', 'carte grise', 'entretiens', 'fiche de poste',
+    'lettre de motivation', 'lettre de recommandation', 'lettre explicative', 'lettre hebdomadaire',
+    'livret de famille', 'location', 'offres alternance', 'permis de construire', 'photo toilette',
+    'poste assistant', 'resume', 'senior', 'stage', 'IMG', 'Image'
+]
 
-# Création des features
-for motif in re.findall(r'\(([^)]+)\)', regex_motifs):
-    data[f'has_{motif}'] = data['dlpfilename'].str.contains(motif, case=False, regex=True).astype(int)
+# Présence de mots-clés whitelistés
+for keyword in whitelist_keywords:
+    data['has_' + keyword] = data['dlpfilename'].str.contains(keyword, case=False).astype(int)
+
+# Nombre de mots-clés whitelistés
+data['whitelist_keywords_count'] = data['dlpfilename'].str.count('|'.join(whitelist_keywords))
+
+# Ratio de mots-clés whitelistés
+data['whitelist_keywords_ratio'] = data['whitelist_keywords_count'] / data['dlpfilename'].str.len()
+
+# Fréquence des mots-clés whitelistés
+data['whitelist_keywords_frequency'] = data['dlpfilename'].apply(lambda x: sum(x.count(keyword) for keyword in whitelist_keywords))
+
+# Présence de mots-clés whitelistés ensemble
+keyword_pairs = [
+    ('bilan', 'professionnel'),
+    ('carte', 'grise'),
+    ('fiche', 'de', 'poste'),
+    ('lettre', 'de', 'motivation'),
+    ('lettre', 'de', 'recommandation'),
+    ('lettre', 'explicative'),
+    ('lettre', 'hebdomadaire'),
+    ('livret', 'de', 'famille'),
+    ('location'),
+    ('offres', 'alternance'),
+    ('permis', 'de', 'construire'),
+    ('photo', 'toilette'),
+    ('poste', 'assistant')
+]
+
+for keywords in keyword_pairs:
+    feature_name = 'has_' + '_'.join(keywords)
+    data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
+
 
