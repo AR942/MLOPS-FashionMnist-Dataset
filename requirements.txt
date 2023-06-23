@@ -180,49 +180,34 @@ for keywords in keyword_pairs:
 
 from sklearn.ensemble import IsolationForest
 
-# Entraînement du modèle Isolation Forest
+# Entraînement du modèle
 clf = IsolationForest(random_state=42)
-clf.fit(X_train_pca)
+clf.fit(X_train)
 
-# Prédiction sur les données d'entraînement
-y_train_pred = clf.predict(X_train_pca)
+# Prédiction sur les données non labélisées
+y_pred = clf.predict(X_unlabeled)
 
-# Création d'un DataFrame avec les prédictions sur les données d'entraînement
-df_train_predictions = pd.DataFrame({'Prediction': y_train_pred}, index=X_train.index)
-df_train_predictions['Target'] = y_train  # Remplacez "y_train" par vos vraies étiquettes d'entraînement
+# Nombre de prédictions à -1 (anomalies)
+n_anomalies = len(y_pred[y_pred == -1])
 
-# Compter les prédictions correctes sur les données d'entraînement
-correct_train_predictions = df_train_predictions[df_train_predictions['Prediction'] == df_train_predictions['Target']]
+# Nombre de prédictions à 1 (non anomalies)
+n_non_anomalies = len(y_pred[y_pred == 1])
 
-# Compter les prédictions incorrectes sur les données d'entraînement
-incorrect_train_predictions = df_train_predictions[df_train_predictions['Prediction'] != df_train_predictions['Target']]
+# Comparaison avec les vraies étiquettes (target)
+correct_predictions = y_pred[y_pred == y_unlabeled]
 
-# Compter les prédictions à 0 sur les données d'entraînement
-predictions_0 = df_train_predictions[df_train_predictions['Prediction'] == 0]
+# Nombre de vraies anomalies prédites comme anomalies
+n_true_positives = len(correct_predictions[correct_predictions == -1])
 
-# Compter les prédictions à 1 sur les données d'entraînement
-predictions_1 = df_train_predictions[df_train_predictions['Prediction'] == 1]
+# Nombre de fausses alarmes (non anomalies prédites comme anomalies)
+n_false_positives = n_non_anomalies - n_true_positives
 
-# Compter les vrais positifs (VP) sur les données d'entraînement
-vp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] == 1)]
+# Nombre de vraies non anomalies prédites comme non anomalies
+n_true_negatives = len(correct_predictions[correct_predictions == 1])
 
-vp_not_predicted_train = df_train_predictions[(df_train_predictions['Prediction'] != 1) & (df_train_predictions['Target'] == 1)]
-
-# Compter les faux positifs (FP) sur les données d'entraînement
-fp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] != 1)]
-
-
-# Afficher les résultats sur les données d'entraînement
-print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
-print(f"Prédictions à 0 sur les données d'entraînement : {len(predictions_0)}")
-print(f"Prédictions à 1 sur les données d'entraînement : {len(predictions_1)}")
-print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
-print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
-print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
-print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
-print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
-print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
-print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
-print(f"Nombre de VP non prédits sur les données d'entraînement : {len(vp_not_predicted_train)}")
-print(f"Nombre de Faux Positifs (FP) sur les données d'entraînement : {len(fp_train_predictions)}")
+print("Nombre de prédictions à -1 (anomalies) :", n_anomalies)
+print("Nombre de prédictions à 1 (non anomalies) :", n_non_anomalies)
+print("Nombre de vraies anomalies prédites comme anomalies :", n_true_positives)
+print("Nombre de fausses alarmes (non anomalies prédites comme anomalies) :", n_false_positives)
+print("Nombre de vraies non anomalies prédites comme non anomalies :", n_true_negatives)
 
