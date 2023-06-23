@@ -178,27 +178,31 @@ for keywords in keyword_pairs:
     data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
 
 
-from sklearn.svm import OneClassSVM
-from sklearn.neighbors import LocalOutlierFactor
+from sklearn.ensemble import IsolationForest
 
-X['target'] = y
-df_neg = X[X['target'] == 1]
-df_pos = X[X['target'] == 0]
+# Entraînement du modèle Isolation Forest
+clf = IsolationForest(random_state=42)
+clf.fit(X_train_pca)
 
-oversample = SMOTE(sampling_strategy=0.8,random_state=42)
-X_train, y_train = oversample.fit_resample(df_neg[FEATURES], y)
-print(Counter(y_train))
+# Prédiction sur les données d'entraînement
+y_train_pred = clf.predict(X_train_pca)
 
-df_neg_train, df_neg_test = train_test_split(df_neg[FEATURES], test_size=0.2, random_state=42)
-scaler = StandardScaler()
-scaler.fit(df_neg_train)
-df_neg_train = pd.DataFrame(scaler.transform(df_neg_train), columns=df_neg_train.columns)
-df_neg_test = pd.DataFrame(scaler.transform(df_neg_test), columns=df_neg_train.columns)
-clf = OneClassSVM(nu=0.3)
-clf.fit(df_neg_train[FEATURES])
+# Création d'un DataFrame avec les prédictions sur les données d'entraînement
+df_train_predictions = pd.DataFrame({'Prediction': y_train_pred}, index=X_train.index)
+df_train_predictions['Target'] = y_train  # Remplacez "y_train" par vos vraies étiquettes d'entraînement
 
-df_test = pd.concat([df_pos, df_neg_test])
-df_test_bis = df_test[FEATURES]
-df_test_bis = pd.DataFrame(scaler.transform(df_test_bis), columns=df_neg_train.columns)
-df_test['pred'] = clf.predict(df_test_bis[FEATURES])
-df_test.pred.value_counts()
+# Compter les prédictions correctes sur les données d'entraînement
+correct_train_predictions = df_train_predictions[df_train_predictions['Prediction'] == df_train_predictions['Target']]
+
+# Compter les prédictions incorrectes sur les données d'entraînement
+incorrect_train_predictions = df_train_predictions[df_train_predictions['Prediction'] != df_train_predictions['Target']]
+
+# Compter les vrais positifs (VP) sur les données d'entraînement
+vp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] == 1)]
+
+# Afficher les résultats sur les données d'entraînement
+print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
+print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
+print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
+print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
+
