@@ -197,6 +197,12 @@ correct_train_predictions = df_train_predictions[df_train_predictions['Predictio
 # Compter les prédictions incorrectes sur les données d'entraînement
 incorrect_train_predictions = df_train_predictions[df_train_predictions['Prediction'] != df_train_predictions['Target']]
 
+# Compter les prédictions à 0 sur les données d'entraînement
+predictions_0 = df_train_predictions[df_train_predictions['Prediction'] == 0]
+
+# Compter les prédictions à 1 sur les données d'entraînement
+predictions_1 = df_train_predictions[df_train_predictions['Prediction'] == 1]
+
 # Compter les vrais positifs (VP) sur les données d'entraînement
 vp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] == 1)]
 
