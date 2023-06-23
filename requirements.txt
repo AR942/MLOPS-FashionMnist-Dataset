@@ -208,6 +208,8 @@ fp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] 
 
 # Afficher les résultats sur les données d'entraînement
 print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
+print(f"Prédictions à 0 sur les données d'entraînement : {len(predictions_0)}")
+print(f"Prédictions à 1 sur les données d'entraînement : {len(predictions_1)}")
 print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
 print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
 print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
