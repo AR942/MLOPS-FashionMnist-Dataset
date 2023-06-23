@@ -178,36 +178,31 @@ for keywords in keyword_pairs:
     data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
 
 
-from sklearn.ensemble import IsolationForest
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import confusion_matrix
 
-# Entraînement du modèle
-clf = IsolationForest(random_state=42)
-clf.fit(X_train)
+# Entraînement du modèle DBSCAN
+eps = 0.5  # Valeur de l'hyperparamètre epsilon
+min_samples = 5  # Nombre minimal d'échantillons dans un cluster
+dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+dbscan.fit(X_train)
 
 # Prédiction sur les données non labélisées
-y_pred = clf.predict(X_unlabeled)
+y_pred = dbscan.fit_predict(X_unlabeled)
 
-# Nombre de prédictions à -1 (anomalies)
-n_anomalies = len(y_pred[y_pred == -1])
+# Calcul des informations demandées
+n_anomalies = len(y_pred[y_pred == -1])  # Nombre d'anomalies
+confusion_mat = confusion_matrix(y_unlabeled, y_pred, labels=[-1, 1])  # Matrice de confusion
+n_true_positives = confusion_mat[0, 0]  # Nombre de vraies anomalies prédites comme anomalies
+n_false_positives = confusion_mat[1, 0]  # Nombre de faux positifs (non anomalies prédites comme anomalies)
 
-# Nombre de prédictions à 1 (non anomalies)
-n_non_anomalies = len(y_pred[y_pred == 1])
+# Calcul du pourcentage de VP correctement prédits sur le nombre total de VP
+total_vp = sum(y_unlabeled == -1)  # Nombre total de VP
+percentage_vp_correct = (n_true_positives / total_vp) * 100
 
-# Comparaison avec les vraies étiquettes (target)
-correct_predictions = y_pred[y_pred == y_unlabeled]
+# Affichage des résultats
+print("Nombre d'anomalies :", n_anomalies)
+print("Pourcentage de VP correctement prédits sur le nombre total de VP :", percentage_vp_correct)
+print("Nombre de faux positifs :", n_false_positives)
 
-# Nombre de vraies anomalies prédites comme anomalies
-n_true_positives = len(correct_predictions[correct_predictions == -1])
-
-# Nombre de fausses alarmes (non anomalies prédites comme anomalies)
-n_false_positives = n_non_anomalies - n_true_positives
-
-# Nombre de vraies non anomalies prédites comme non anomalies
-n_true_negatives = len(correct_predictions[correct_predictions == 1])
-
-print("Nombre de prédictions à -1 (anomalies) :", n_anomalies)
-print("Nombre de prédictions à 1 (non anomalies) :", n_non_anomalies)
-print("Nombre de vraies anomalies prédites comme anomalies :", n_true_positives)
-print("Nombre de fausses alarmes (non anomalies prédites comme anomalies) :", n_false_positives)
-print("Nombre de vraies non anomalies prédites comme non anomalies :", n_true_negatives)
 
