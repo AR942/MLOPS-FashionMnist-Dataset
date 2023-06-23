@@ -178,31 +178,31 @@ for keywords in keyword_pairs:
     data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
 
 
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
 from sklearn.metrics import confusion_matrix
 
-# Entraînement du modèle DBSCAN
-eps = 0.5  # Valeur de l'hyperparamètre epsilon
-min_samples = 5  # Nombre minimal d'échantillons dans un cluster
-dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-dbscan.fit(X_train)
+# Entraînement du modèle K-means
+n_clusters = 2  # Nombre de clusters
+kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+kmeans.fit(X_train)
 
 # Prédiction sur les données non labélisées
-y_pred = dbscan.fit_predict(X_unlabeled)
+y_pred = kmeans.predict(X_unlabeled)
 
 # Calcul des informations demandées
-n_anomalies = len(y_pred[y_pred == -1])  # Nombre d'anomalies
-confusion_mat = confusion_matrix(y_unlabeled, y_pred, labels=[-1, 1])  # Matrice de confusion
-n_true_positives = confusion_mat[0, 0]  # Nombre de vraies anomalies prédites comme anomalies
-n_false_positives = confusion_mat[1, 0]  # Nombre de faux positifs (non anomalies prédites comme anomalies)
+confusion_mat = confusion_matrix(y_unlabeled, y_pred)  # Matrice de confusion
+n_vp_predicted = confusion_mat[1, 1]  # Nombre de VP prédits
+n_false_positives = confusion_mat[0, 1]  # Nombre de FP (non anomalies prédites comme anomalies)
+n_false_negatives = confusion_mat[1, 0]  # Nombre de FN (anomalies prédites comme non anomalies)
 
-# Calcul du pourcentage de VP correctement prédits sur le nombre total de VP
-total_vp = sum(y_unlabeled == -1)  # Nombre total de VP
-percentage_vp_correct = (n_true_positives / total_vp) * 100
+# Calcul du pourcentage de VP prédits sur le nombre total de VP
+total_vp = sum(y_unlabeled == 1)  # Nombre total de VP
+percentage_vp_predicted = (n_vp_predicted / total_vp) * 100
 
 # Affichage des résultats
-print("Nombre d'anomalies :", n_anomalies)
-print("Pourcentage de VP correctement prédits sur le nombre total de VP :", percentage_vp_correct)
-print("Nombre de faux positifs :", n_false_positives)
+print("Ce qu'il prédit en VP sur le nombre total de VP :", percentage_vp_predicted)
+print("Ce qu'il prédit en VP mais qui sont en fait des FP :", n_false_positives)
+print("Ce qu'il prédit en FP mais qui sont en fait des VP :", n_false_negatives)
+
 
 
