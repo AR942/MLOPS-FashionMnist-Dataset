@@ -200,6 +200,12 @@ incorrect_train_predictions = df_train_predictions[df_train_predictions['Predict
 # Compter les vrais positifs (VP) sur les données d'entraînement
 vp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] == 1)]
 
+vp_not_predicted_train = df_train_predictions[(df_train_predictions['Prediction'] != 1) & (df_train_predictions['Target'] == 1)]
+
+# Compter les faux positifs (FP) sur les données d'entraînement
+fp_train_predictions = df_train_predictions[(df_train_predictions['Prediction'] == 1) & (df_train_predictions['Target'] != 1)]
+
+
 # Afficher les résultats sur les données d'entraînement
 print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
 print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
