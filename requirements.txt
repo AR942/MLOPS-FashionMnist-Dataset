@@ -205,4 +205,10 @@ print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_
 print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
 print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
 print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
+print(f"Nombre total de prédictions sur les données d'entraînement : {len(df_train_predictions)}")
+print(f"Prédictions correctes sur les données d'entraînement : {len(correct_train_predictions)}")
+print(f"Prédictions incorrectes sur les données d'entraînement : {len(incorrect_train_predictions)}")
+print(f"Nombre de VP prédits sur les données d'entraînement : {len(vp_train_predictions)}")
+print(f"Nombre de VP non prédits sur les données d'entraînement : {len(vp_not_predicted_train)}")
+print(f"Nombre de Faux Positifs (FP) sur les données d'entraînement : {len(fp_train_predictions)}")
 
