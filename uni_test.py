@@ -59,3 +59,13 @@ class FlaskTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+
+import re
+
+image_extensions = ['.jpg', '.jpeg', '.png', '.gif']  # Liste des extensions d'images à vérifier
+
+pattern = r'^(?:[^.]+{})+$'.format('|'.join(map(re.escape, image_extensions)))
+
+df['is_only_image'] = df['dlpfilename'].str.match(pattern, case=False, regex=True).astype(int)
