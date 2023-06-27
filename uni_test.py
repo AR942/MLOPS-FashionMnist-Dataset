@@ -10,8 +10,16 @@ warnings.filterwarnings("ignore")
 import unittest
 import requests
 from app import app
-Ayant déjà une connaissance approfondie de l'équipe et une bonne relation de travail avec les membres de l'équipe Data et du SOC, j'ai pris en charge le cas d'utilisation de Valentin concernant la détection de fuites d'informations via les URL. Étant donné que les critères de classification ont changé, je repars presque de zéro sur ce sujet, avec pour objectif de mettre en production un algorithme efficace dans les plus brefs délais. De plus, j'ai pour projet d'aider l'équipe à s'étendre à tout DIS en collaborant avec les équipes Mycloud, par exemple, afin de renforcer les synergies et de maximiser les bénéfices pour l'ensemble de l'organisation.
+Bonjour Philippe,
 
+Au cours de mes deux stages de Master, j’ai eu l’opportunité de passer plusieurs mois au sein du SOC. J’ai grandement apprécié l’environnement de travail et j’ai pu développer des relations solides avec les membres de l’équipe. 
+Je souhaite donc exprimer mon vif intérêt à rejoindre l’équipe en tant qu’interne à l’issue de mon stage. Je suis convaincu que mon engagement et mon expérience au SOC me permettront de contribuer de manière significative aux projets en cours et futurs.
+
+Je suis conscient des défis et des responsabilités qui accompagnent ce rôle mais je suis prêt à m’investir pleinement et à travailler en étroite collaboration avec l’équipe pour atteindre nos objectifs communs.
+
+Je reste à disposition pour discuter davantage de ma candidature et de mon projet. Je te remercie sincèrement pour ta considération et ton soutien continu.
+
+Cordialement/Regards,
 class FlaskTestCase(unittest.TestCase):
 
     def setUp(self):
