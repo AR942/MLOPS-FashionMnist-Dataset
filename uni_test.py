@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 import unittest
 import requests
 from app import app
-
+Ayant déjà une connaissance approfondie de l'équipe et une bonne relation de travail avec les membres de l'équipe Data et du SOC, j'ai pris en charge le cas d'utilisation de Valentin concernant la détection de fuites d'informations via les URL. Étant donné que les critères de classification ont changé, je repars presque de zéro sur ce sujet, avec pour objectif de mettre en production un algorithme efficace dans les plus brefs délais. De plus, j'ai pour projet d'aider l'équipe à s'étendre à tout DIS en collaborant avec les équipes Mycloud, par exemple, afin de renforcer les synergies et de maximiser les bénéfices pour l'ensemble de l'organisation.
 
 class FlaskTestCase(unittest.TestCase):
 
