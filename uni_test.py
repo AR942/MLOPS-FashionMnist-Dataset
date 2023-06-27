@@ -20,6 +20,24 @@ Je suis conscient des défis et des responsabilités qui accompagnent ce rôle m
 Je reste à disposition pour discuter davantage de ma candidature et de mon projet. Je te remercie sincèrement pour ta considération et ton soutien continu.
 
 Cordialement/Regards,
+
+Bonjour Philippe,
+
+Élève ingénieur en dernière année de Efrei Paris, j’ai pu réaliser 2 stages en 2002 et cette année 2023 dans le département…….
+
+Le travail confié m’a permis de développer des qualités techniques professionnelles grâce notamment à la qualité les membres de l’équipe. 
+
+Je manifeste un intérêt motivé à vous rejoindre en tant qu’interne à l’issue de mon stage. 
+
+Je suis convaincu que mon engagement et mon expérience au SOC me permettront de contribuer à la création de valeur ajoutée.
+
+Je suis préparé à relever les défis avec responsabilités pour atteindre les objectifs fixés.
+
+Je vous soumets donc ma candidature en vous joignant mon CV et reste à votre disposition pour un entretien.
+
+Je te remercie sincèrement pour ta considération et ton soutien constant.
+
+Cordialement/Regards,
 class FlaskTestCase(unittest.TestCase):
 
     def setUp(self):
