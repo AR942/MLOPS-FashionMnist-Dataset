@@ -69,3 +69,14 @@ image_extensions = ['.jpg', '.jpeg', '.png', '.gif']  # Liste des extensions d'i
 pattern = r'^(?:[^.]+{})+$'.format('|'.join(map(re.escape, image_extensions)))
 
 df['is_only_image'] = df['dlpfilename'].str.match(pattern, case=False, regex=True).astype(int)
+Récapitulation de mes réalisations :
+
+Stage M1 : En tant que stagiaire en Data Science, j'ai intégré l'équipe avec laquelle j'avais déjà établi des liens lors de mon précédent stage. Ayant développé une bonne connaissance des membres de l'équipe Data et du SOC, je me suis senti bien inclus. J'ai principalement travaillé sur des sujets de machine learning, notamment la détection de fuites d'informations via les URL. J'ai activement contribué au développement de fonctionnalités, codant des solutions pour répondre aux besoins de l'équipe.
+Stage de fin d'études : J'ai eu l'opportunité de réintégrer l'équipe avec laquelle je me sens à l'aise, travaillant aux côtés de Mathieu et Ismael. Cette familiarité avec les membres de l'équipe Data et du SOC m'a permis de m'intégrer plus facilement et de collaborer de manière efficace. J'ai mis en place MLflow pour l'équipe, en me concentrant sur DLTK. J'ai également développé un premier algorithme pour la partie beacon C2, que j'ai ensuite amélioré. Ensuite, j'ai apporté mon aide à Ismael sur la partie NLP pour la détection de fuites d'informations par e-mail.
+Reprendre le cas d'utilisation de Valentin : Ayant déjà une connaissance approfondie de l'équipe et une bonne relation de travail avec les membres de l'équipe Data et du SOC, j'ai pris en charge le cas d'utilisation de Valentin concernant la détection de fuites d'informations via les URL. Étant donné que les critères de classification ont changé, je repars presque de zéro sur ce sujet, avec pour objectif de mettre en production un algorithme efficace dans les plus brefs délais.
+
+Récapitulation de mes réalisations :
+
+Stage M1 : En tant que stagiaire en Data Science, j'ai intégré l'équipe et me suis concentré sur des sujets de machine learning, notamment la détection de fuites d'informations via les URL. J'ai activement contribué au développement de fonctionnalités, codant des solutions pour répondre aux besoins de l'équipe.
+Stage de fin d'études : J'ai réintégré l'équipe avec laquelle je me sens à l'aise, travaillant aux côtés de Mathieu et Ismael. J'ai mis en place MLflow pour l'équipe, en me concentrant sur DLTK. J'ai également développé un premier algorithme pour la partie beacon C2, que j'ai ensuite amélioré. Ensuite, j'ai apporté mon aide à Ismael sur la partie NLP pour la détection de fuites d'informations par e-mail.
+Reprendre le cas d'utilisation de Valentin : J'ai pris en charge le cas d'utilisation de Valentin concernant la détection de fuites d'informations via les URL. Étant donné que les critères de classification ont changé, je repars presque de zéro sur ce sujet, avec pour objectif de mettre en production un algorithme efficace dans les plus brefs délais.
