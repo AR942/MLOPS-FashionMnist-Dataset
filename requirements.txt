@@ -16,11 +16,17 @@ tensorflow==2.11.0
        'feature_uploadc2', 'feature_uploadc3', 'feature_uploadc4'
 
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
-from sklearn.feature_extraction.text import TfidfVectorizer
+extensions = ['.zip', '.log', '.7z']  # Liste des extensions à rechercher
+
+# Créer une colonne temporaire pour vérifier les extensions
+df['temp_ext'] = df['dlpfilename'].str.lower().str.extract(r'(\.[a-zA-Z0-9]+)$')
+
+# Vérifier si la colonne temporaire correspond exclusivement aux extensions spécifiées
+df['is_only_specific_ext'] = (df['temp_ext'].isin(extensions) & ~df['temp_ext'].isna()).astype(int)
+
+# Supprimer la colonne temporaire
+df = df.drop(columns=['temp_ext'])
+
 
 # Chargement des données
 data = pd.read_csv("votre_fichier.csv")
