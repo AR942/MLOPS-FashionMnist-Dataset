@@ -22,7 +22,7 @@ import re
 extensions = ['.zip', '.log', '.7z', '.jpg', '.png', '.gif', '.pdf', '.docx', '.xlsx', '.pptx']
 
 # Création de la colonne temp_ext avec les extensions présentes dans dlpfilename
-df['temp_ext'] = df['dlpfilename'].apply(lambda x: re.findall(r'\.[^.\\/:*?"<>|\r\n]+$', x))
+df['temp_ext'] = df['dlpfilename'].apply(lambda x: re.findall(r'\.([^.\\/:*?"<>|\r\n]+)', x))
 
 # Création de la feature is_only_specific_ext
 df['is_only_specific_ext'] = df['temp_ext'].apply(lambda x: all(ext in extensions for ext in x) if x else False).astype(int)
