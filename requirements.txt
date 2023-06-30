@@ -14,7 +14,7 @@ tensorflow==2.11.0
        'feature_downloadc1', 'feature_downloadc2', 'feature_downloadc3',
        'feature_downloadc4', 'feature_upload', 'feature_uploadc1',
        'feature_uploadc2', 'feature_uploadc3', 'feature_uploadc4'
-
+2022 - Frise enseignes chÃ¨que Bimpli CADO.pdf AE_BE-Lot1 - 20230315094857 - Signature 1.pdf AE_TR-Lot 2 - 20230315094909 - Signature 1.pdf Annexes au cadre de rÃ©ponse.zip Annexes candidature.zip Attestation sur l'honneur_Outillage_Bimpli.pdf Attestation sur l'honneur_Outillage_Carte_Bimpli.pdf BE BPU lot 1.xlsx BE DQE lot 1.xlsx CRT LOT 1 CADO.pdf CRT LOT 2 10 02.pdf DC1 BIMPLI.pdf DC2 BIMPLI.pdf RÃ©fÃ©rences TITRES CADEAUX.pdf TR BPU lot 2.xlsx TR DQE lot 2.xlsx
 
 extensions = ['.zip', '.log', '.7z']  # Liste des extensions à rechercher
 
