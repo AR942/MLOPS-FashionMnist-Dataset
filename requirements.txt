@@ -199,31 +199,77 @@ for keywords in keyword_pairs:
     data[feature_name] = data['dlpfilename'].apply(lambda x: all(keyword in x for keyword in keywords)).astype(int)
 
 
-from sklearn.cluster import KMeans
-from sklearn.metrics import confusion_matrix
+import re
+import spacy
 
-# Entraînement du modèle K-means
-n_clusters = 2  # Nombre de clusters
-kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-kmeans.fit(X_train)
+keywords = ['crédit', 'quarterlyreport', 'operations', 'hr', 'fees', 'comptes', 'comitã©', 'compte annuel',
+            'contrôle', 'asset management', 'invest', 'roadmap', 'direction generale', 'portfolio', 'report',
+            'process', 'project', 'compliance', 'habilitations', 'admin', 'cockpit', 'clientid', 'action_plan',
+            'rã©fã©rentiel', 'keynote', 'strategic', 'allocated deduction', 'income', 'presentation', 'support',
+            'draft', 'fund', 'valuations', 'procã©dure', 'managers', 'prod', 'sponsor', 'export', 'script', 'delete']
 
-# Prédiction sur les données non labélisées
-y_pred = kmeans.predict(X_unlabeled)
+# Mapping français-anglais
+mapping_fr_en = {
+    'crédit': 'credit',
+    'quarterlyreport': 'quarterly report',
+    'operations': 'operations',
+    'hr': 'hr',
+    'fees': 'fees',
+    'comptes': 'accounts',
+    'comitã©': 'committee',
+    'compte annuel': 'annual account',
+    'contrôle': 'control',
+    'asset management': 'asset management',
+    'invest': 'invest',
+    'roadmap': 'roadmap',
+    'direction generale': 'general direction',
+    'portfolio': 'portfolio',
+    'report': 'report',
+    'process': 'process',
+    'project': 'project',
+    'compliance': 'compliance',
+    'habilitations': 'authorizations',
+    'admin': 'admin',
+    'cockpit': 'cockpit',
+    'clientid': 'client id',
+    'action_plan': 'action plan',
+    'rã©fã©rentiel': 'repository',
+    'keynote': 'keynote',
+    'strategic': 'strategic',
+    'allocated deduction': 'allocated deduction',
+    'income': 'income',
+    'presentation': 'presentation',
+    'support': 'support',
+    'draft': 'draft',
+    'fund': 'fund',
+    'valuations': 'valuations',
+    'procã©dure': 'procedure',
+    'managers': 'managers',
+    'prod': 'prod',
+    'sponsor': 'sponsor',
+    'export': 'export',
+    'script': 'script',
+    'delete': 'delete'
+}
 
-# Calcul des informations demandées
-confusion_mat = confusion_matrix(y_unlabeled, y_pred)  # Matrice de confusion
-n_vp_predicted = confusion_mat[1, 1]  # Nombre de VP prédits
-n_false_positives = confusion_mat[0, 1]  # Nombre de FP (non anomalies prédites comme anomalies)
-n_false_negatives = confusion_mat[1, 0]  # Nombre de FN (anomalies prédites comme non anomalies)
+# Initialiser le modèle spaCy
+nlp = spacy.load('en_core_web_lg')
 
-# Calcul du pourcentage de VP prédits sur le nombre total de VP
-total_vp = sum(y_unlabeled == 1)  # Nombre total de VP
-percentage_vp_predicted = (n_vp_predicted / total_vp) * 100
+# Lemmatization des mots-clés et mapping
+keywords_lemmatized = [mapping_fr_en.get(keyword, keyword) for keyword in keywords]
 
-# Affichage des résultats
-print("Ce qu'il prédit en VP sur le nombre total de VP :", percentage_vp_predicted)
-print("Ce qu'il prédit en VP mais qui sont en fait des FP :", n_false_positives)
-print("Ce qu'il prédit en FP mais qui sont en fait des VP :", n_false_negatives)
+# Fonction de recherche des keywords dans dlpfilename
+def find_keywords(text):
+    doc = nlp(text)
+    text_lemmatized = [token.lemma_.lower() for token in doc if token.is_alpha]
+    for keyword in keywords_lemmatized:
+        if keyword in text_lemmatized:
+            return 1
+    return 0
+
+# Création de la colonne binaire pour la présence des keywords
+df['contains_keywords'] = df['dlpfilename'].apply(find_keywords)
+
 
 kw = ['crédit', 'quarterlyreport', 'operations', 'hr', 'fees', 
       'comptes', 'comitã©', 'compte annuel', 'contrôle', ' asset management ', 
