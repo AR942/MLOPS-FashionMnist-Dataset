@@ -225,5 +225,11 @@ print("Ce qu'il prédit en VP sur le nombre total de VP :", percentage_vp_predic
 print("Ce qu'il prédit en VP mais qui sont en fait des FP :", n_false_positives)
 print("Ce qu'il prédit en FP mais qui sont en fait des VP :", n_false_negatives)
 
-
+kw = ['crédit', 'quarterlyreport', 'operations', 'hr', 'fees', 
+      'comptes', 'comitã©', 'compte annuel', 'contrôle', ' asset management ', 
+      'invest',  'roadmap', 'direction generale', 'portfolio', 'report',
+      'process', 'project','compliance','habilitations', 'admin', 'cockpit',
+      'clientid', 'action_plan', 'rã©fã©rentiel', 'keynote', 'strategic', 'allocated deduction ',
+      'income', 'presentation', 'support', 'draft', 'fund', 'valuations','procã©dure',  'managers',
+      'prod', 'sponsor', 'export',  'script', 'delete']
 
