@@ -279,3 +279,34 @@ kw = ['crédit', 'quarterlyreport', 'operations', 'hr', 'fees',
       'income', 'presentation', 'support', 'draft', 'fund', 'valuations','procã©dure',  'managers',
       'prod', 'sponsor', 'export',  'script', 'delete']
 
+from collections import Counter
+
+# Filtrer les lignes VP et FP
+df_filtered = df[df['target'].isin([0, 1])]
+
+# Séparer les noms de fichiers VP et FP
+vp_filenames = df_filtered[df_filtered['target'] == 1]['dlpfilename']
+fp_filenames = df_filtered[df_filtered['target'] == 0]['dlpfilename']
+
+# Concaténer les noms de fichiers VP
+vp_filenames_concatenated = ' '.join(vp_filenames)
+
+# Diviser en mots
+vp_words = vp_filenames_concatenated.split()
+
+# Calculer la fréquence des mots dans les VP
+word_freq_vp = Counter(vp_words)
+
+# Seuil de fréquence
+threshold = 10
+
+# Sélectionner les mots fréquents dans les VP
+frequent_words_vp = [word for word, freq in word_freq_vp.items() if freq > threshold]
+
+# Filtrer les mots fréquents des VP en éliminant ceux présents dans les FP
+frequent_words_exclusive_vp = [word for word in frequent_words_vp if word not in ' '.join(fp_filenames).split()]
+
+# Ajouter les mots fréquents exclusifs des VP aux mots-clés
+keywords += frequent_words_exclusive_vp
+
+
