@@ -1,16 +1,25 @@
+import re
+
+# Créez deux ensembles vides pour stocker les mots des VP et des FP
+words_vp = set()
+words_fp = set()
+
+# Parcourez les lignes du DataFrame
 for index, row in df.iterrows():
     if row['y_true'] == 1 and row['y_pred'] == 1:  # VP
-        words = re.findall(r'\b\w+\b', row['dlpfilename'].lower())
-        for word in words:
-            if word not in unique_words_vp:
-                unique_words_vp.append(word)
+        words_vp.update(re.findall(r'\b\w+\b', row['dlpfilename'].lower()))
     elif row['y_true'] == 0 and row['y_pred'] == 1:  # FP
-        words = re.findall(r'\b\w+\b', row['dlpfilename'].lower())
-        for word in words:
-            if word in unique_words_vp:
-                unique_words_vp.remove(word)
+        words_fp.update(re.findall(r'\b\w+\b', row['dlpfilename'].lower()))
 
-sorted_extensions = sorted(frequency_ratios.items(), key=lambda x: x[1], reverse=True)
+# Obtenez les mots qui sont présents uniquement dans les VP
+words_unique_to_vp = words_vp - words_fp
+
+# Comptez le nombre d'occurrences de chaque mot dans les VP
+word_counts_vp = {}
+for word in words_unique_to_vp:
+    count = sum(row['dlpfilename'].lower().count(word) for _, row in df.iterrows() if row['y_true'] == 1 and row['y_pred'] == 1)
+    word_counts_vp[word] = count
+
 
 
 
