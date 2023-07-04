@@ -1,23 +1,14 @@
-occurrences_vp = {}
-occurrences_fp = {}
-
 for index, row in df.iterrows():
     if row['y_true'] == 1 and row['y_pred'] == 1:  # VP
-        extensions = re.findall(r'\.[^.\\/:*?"<>|\r\n]+$', row['dlpfilename'])
-        for ext in extensions:
-            occurrences_vp[ext] = occurrences_vp.get(ext, 0) + 1
+        words = re.findall(r'\b\w+\b', row['dlpfilename'].lower())
+        for word in words:
+            if word not in unique_words_vp:
+                unique_words_vp.append(word)
     elif row['y_true'] == 0 and row['y_pred'] == 1:  # FP
-        extensions = re.findall(r'\.[^.\\/:*?"<>|\r\n]+$', row['dlpfilename'])
-        for ext in extensions:
-            occurrences_fp[ext] = occurrences_fp.get(ext, 0) + 1
-
-frequency_ratios = {}
-
-for ext, count_vp in occurrences_vp.items():
-    count_fp = occurrences_fp.get(ext, 0)
-    if count_fp > 0:
-        ratio = count_vp / count_fp
-        frequency_ratios[ext] = ratio
+        words = re.findall(r'\b\w+\b', row['dlpfilename'].lower())
+        for word in words:
+            if word in unique_words_vp:
+                unique_words_vp.remove(word)
 
 sorted_extensions = sorted(frequency_ratios.items(), key=lambda x: x[1], reverse=True)
 
