@@ -1,24 +1,35 @@
-import re
+import pandas as pd
+from collections import defaultdict
 
-# Créez deux ensembles vides pour stocker les mots des VP et des FP
-words_vp = set()
-words_fp = set()
+# Créer un dictionnaire pour compter les occurrences des mots dans les VP
+word_counts_vp = defaultdict(int)
+line_counts_vp = defaultdict(set)
 
-# Parcourez les lignes du DataFrame
-for index, row in df.iterrows():
-    if row['y_true'] == 1 and row['y_pred'] == 1:  # VP
-        words_vp.update(re.findall(r'\b\w+\b', row['dlpfilename'].lower()))
-    elif row['y_true'] == 0 and row['y_pred'] == 1:  # FP
-        words_fp.update(re.findall(r'\b\w+\b', row['dlpfilename'].lower()))
+# Compter les occurrences des mots dans les VP
+for index, row in df[df['target'] == 1].iterrows():
+    words = row['dlpfilename'].lower().split()
+    for word in words:
+        word_counts_vp[word] += 1
+        line_counts_vp[word].add(index)
 
-# Obtenez les mots qui sont présents uniquement dans les VP
-words_unique_to_vp = words_vp - words_fp
+# Créer un dictionnaire pour compter les occurrences des mots dans les FP
+word_counts_fp = defaultdict(int)
+line_counts_fp = defaultdict(set)
 
-# Comptez le nombre d'occurrences de chaque mot dans les VP
-word_counts_vp = {}
-for word in words_unique_to_vp:
-    count = sum(row['dlpfilename'].lower().count(word) for _, row in df.iterrows() if row['y_true'] == 1 and row['y_pred'] == 1)
-    word_counts_vp[word] = count
+# Compter les occurrences des mots dans les FP
+for index, row in df[df['target'] == 0].iterrows():
+    words = row['dlpfilename'].lower().split()
+    for word in words:
+        word_counts_fp[word] += 1
+        line_counts_fp[word].add(index)
+
+# Obtenir les mots qui apparaissent dans les VP mais pas dans les FP
+words_only_vp = set(word_counts_vp.keys()) - set(word_counts_fp.keys())
+
+# Imprimer les mots qui apparaissent dans les VP mais pas dans les FP
+for word in words_only_vp:
+    print(f"Mot : {word}, Nombre de lignes : {len(line_counts_vp[word])}")
+
 
 
 
