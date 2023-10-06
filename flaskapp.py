@@ -99,3 +99,7 @@ def predict():
 
 # start the flask app, allow remote connections 
 app.run(host='0.0.0.0',port=1637, debug=True)
+
+
+
+dcount_host	data_last_time_seen	data_last_lag_seen	data_last_ingest	data_eventcount
