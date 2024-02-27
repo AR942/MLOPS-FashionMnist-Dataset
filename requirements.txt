@@ -25,3 +25,35 @@ info_min_time
 info_max_time
 nombre
 commande
+
+RangeIndex: 833390 entries, 0 to 833389
+Data columns (total 27 columns):
+ #   Column               Non-Null Count   Dtype  
+---  ------               --------------   -----  
+ 0   _time                833390 non-null  object 
+ 1   hôte                 0 non-null       float64
+ 2   source               833390 non-null  object 
+ 3   sourcetype           833390 non-null  object 
+ 4   splunk_server        833390 non-null  object 
+ 5   index                833390 non-null  object 
+ 6   utilisateur          0 non-null       float64
+ 7   classification_mail  147 non-null     object 
+ 8   action               1677 non-null    object 
+ 9   src                  801582 non-null  object 
+ 10  horodatage           0 non-null       float64
+ 11  src_user             797183 non-null  object 
+ 12  src_ip               101388 non-null  object 
+ 13  search_now           826659 non-null  float64
+ 14  search_name          827039 non-null  object 
+ 15  process              780443 non-null  object 
+ 16  perimeter            477068 non-null  object 
+ 17  parent_process_name  767316 non-null  object 
+ 18  mitre_technique_id   823455 non-null  object 
+ 19  mitre_tactic         826114 non-null  object 
+ 20  min_date             780111 non-null  object 
+ 21  max_date             780111 non-null  object 
+ 22  info_search_time     827042 non-null  object 
+ 23  info_min_time        827036 non-null  object 
+ 24  info_max_time        827042 non-null  object 
+ 25  nombre               0 non-null       float64
+ 26  commande             0 non-null       float64
