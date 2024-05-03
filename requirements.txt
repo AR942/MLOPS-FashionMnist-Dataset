@@ -1,30 +1,24 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
 
 # Charger les données
 data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le nom de votre fichier de données
 
-# Séparer les caractéristiques (features) des étiquettes (labels), si nécessaire
-
-# Standardiser les caractéristiques
+# Standardiser les données si nécessaire
 scaler = StandardScaler()
 data_scaled = scaler.fit_transform(data)
 
-# Appliquer l'ACP
-pca = PCA(n_components=2)  # Réduire à 2 dimensions pour la visualisation
-principal_components = pca.fit_transform(data_scaled)
+# Appliquer t-SNE pour réduire à 2 dimensions
+tsne = TSNE(n_components=2, random_state=42)
+tsne_components = tsne.fit_transform(data_scaled)
 
-# Créer un DataFrame pour les deux premières composantes principales
-pca_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
+# Créer un DataFrame pour les deux dimensions t-SNE
+tsne_df = pd.DataFrame(data=tsne_components, columns=['Dimension 1', 'Dimension 2'])
 
 # Visualiser les données avec un graphique de dispersion
 plt.figure(figsize=(10, 6))
-plt.scatter(pca_df['PC1'], pca_df['PC2'], alpha=0.5)
-plt.title('ACP - Visualisation des données')
-plt.xlabel('Composante Principale 1')
-plt.ylabel('Composante Principale 2')
+plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], alpha=0.5)
+plt.title('t-SNE - Visualisation des données')
+plt.xlabel('Dimension 1')
+plt.ylabel('Dimension 2')
 plt.grid()
 plt.show()
