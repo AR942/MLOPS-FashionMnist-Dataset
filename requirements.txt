@@ -1,32 +1,28 @@
 import pandas as pd
 
 # Charger les données
-data = pd.read_csv("logs_proxy.csv")
+data = pd.read_csv("data_with_selected_columns.csv")
 
-# Convertir la colonne de date en type datetime
-data['date'] = pd.to_datetime(data['date'])
+# Convertir la colonne feature_time en type datetime si elle ne l'est pas déjà
+data['feature_time'] = pd.to_datetime(data['feature_time'])
 
-# Créer la feature de jour de la semaine
-data['day_of_week'] = data['date'].dt.dayofweek
-
-# Créer la feature de mois
-data['month'] = data['date'].dt.month
-
-# Créer la feature de jour de la semaine
+# Réassigner les valeurs des features existantes
+data['day_of_week'] = data['feature_time'].dt.dayofweek
+data['month'] = data['feature_time'].dt.month
 data['is_weekend'] = (data['day_of_week'] >= 5).astype(int)
 
 # Calculer la fréquence d'accès par jour
-access_frequency = data.groupby(['user', data['date'].dt.date])['date'].count().reset_index()
-access_frequency.columns = ['user', 'date', 'access_frequency']
-data = pd.merge(data, access_frequency, on=['user', 'date'], how='left')
+access_frequency = data.groupby(['user', data['feature_time'].dt.date])['feature_time'].count().reset_index()
+access_frequency.columns = ['user', 'feature_time', 'access_frequency']
+data = pd.merge(data, access_frequency, on=['user', 'feature_time'], how='left')
 
 # Calculer la fréquence d'accès par mois
-monthly_access_frequency = data.groupby(['user', data['date'].dt.to_period('M')])['date'].count().reset_index()
+monthly_access_frequency = data.groupby(['user', data['feature_time'].dt.to_period('M')])['feature_time'].count().reset_index()
 monthly_access_frequency.columns = ['user', 'month', 'monthly_access_frequency']
 data = pd.merge(data, monthly_access_frequency, on=['user', 'month'], how='left')
 
 # Calculer la fréquence d'accès par jour de la semaine
-weekly_access_frequency = data.groupby(['user', data['date'].dt.dayofweek])['date'].count().reset_index()
+weekly_access_frequency = data.groupby(['user', data['feature_time'].dt.dayofweek])['feature_time'].count().reset_index()
 weekly_access_frequency.columns = ['user', 'day_of_week', 'weekly_access_frequency']
 data = pd.merge(data, weekly_access_frequency, on=['user', 'day_of_week'], how='left')
 
