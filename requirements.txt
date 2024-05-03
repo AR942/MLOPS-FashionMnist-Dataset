@@ -1,30 +1,30 @@
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 # Charger les données
-data = pd.read_csv("data_with_selected_columns.csv")
+data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le nom de votre fichier de données
 
-# Convertir la colonne feature_time en type datetime si elle ne l'est pas déjà
-data['feature_time'] = pd.to_datetime(data['feature_time'])
+# Séparer les caractéristiques (features) des étiquettes (labels), si nécessaire
 
-# Réassigner les valeurs des features existantes
-data['day_of_week'] = data['feature_time'].dt.dayofweek
-data['month'] = data['feature_time'].dt.month
-data['is_weekend'] = (data['day_of_week'] >= 5).astype(int)
+# Standardiser les caractéristiques
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data)
 
-# Calculer la fréquence d'accès par jour
-access_frequency = data.groupby(['user', data['feature_time'].dt.date])['feature_time'].count().reset_index()
-access_frequency.columns = ['user', 'feature_time', 'access_frequency']
-data = pd.merge(data, access_frequency, on=['user', 'feature_time'], how='left')
+# Appliquer l'ACP
+pca = PCA(n_components=2)  # Réduire à 2 dimensions pour la visualisation
+principal_components = pca.fit_transform(data_scaled)
 
-# Calculer la fréquence d'accès par mois
-monthly_access_frequency = data.groupby(['user', data['feature_time'].dt.to_period('M')])['feature_time'].count().reset_index()
-monthly_access_frequency.columns = ['user', 'month', 'monthly_access_frequency']
-data = pd.merge(data, monthly_access_frequency, on=['user', 'month'], how='left')
+# Créer un DataFrame pour les deux premières composantes principales
+pca_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
 
-# Calculer la fréquence d'accès par jour de la semaine
-weekly_access_frequency = data.groupby(['user', data['feature_time'].dt.dayofweek])['feature_time'].count().reset_index()
-weekly_access_frequency.columns = ['user', 'day_of_week', 'weekly_access_frequency']
-data = pd.merge(data, weekly_access_frequency, on=['user', 'day_of_week'], how='left')
-
-# Afficher les premières lignes du dataset avec les nouvelles features
-print(data.head())
+# Visualiser les données avec un graphique de dispersion
+plt.figure(figsize=(10, 6))
+plt.scatter(pca_df['PC1'], pca_df['PC2'], alpha=0.5)
+plt.title('ACP - Visualisation des données')
+plt.xlabel('Composante Principale 1')
+plt.ylabel('Composante Principale 2')
+plt.grid()
+plt.show()
