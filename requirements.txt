@@ -1,59 +1,34 @@
-_time	
-hôte
-source
-sourcetype
-splunk_server
-index
-utilisateur
-classification_mail
-action
-src
-horodatage
-src_user
-src_ip
-search_now
-search_name
-process
-perimeter
-parent_process_name
-mitre_technique_id
-mitre_tactic
-min_date
-max_date
-info_search_time
-info_min_time
-info_max_time
-nombre
-commande
+import pandas as pd
 
-RangeIndex: 833390 entries, 0 to 833389
-Data columns (total 27 columns):
- #   Column               Non-Null Count   Dtype  
----  ------               --------------   -----  
- 0   _time                833390 non-null  object 
- 1   hôte                 0 non-null       float64
- 2   source               833390 non-null  object 
- 3   sourcetype           833390 non-null  object 
- 4   splunk_server        833390 non-null  object 
- 5   index                833390 non-null  object 
- 6   utilisateur          0 non-null       float64
- 7   classification_mail  147 non-null     object 
- 8   action               1677 non-null    object 
- 9   src                  801582 non-null  object 
- 10  horodatage           0 non-null       float64
- 11  src_user             797183 non-null  object 
- 12  src_ip               101388 non-null  object 
- 13  search_now           826659 non-null  float64
- 14  search_name          827039 non-null  object 
- 15  process              780443 non-null  object 
- 16  perimeter            477068 non-null  object 
- 17  parent_process_name  767316 non-null  object 
- 18  mitre_technique_id   823455 non-null  object 
- 19  mitre_tactic         826114 non-null  object 
- 20  min_date             780111 non-null  object 
- 21  max_date             780111 non-null  object 
- 22  info_search_time     827042 non-null  object 
- 23  info_min_time        827036 non-null  object 
- 24  info_max_time        827042 non-null  object 
- 25  nombre               0 non-null       float64
- 26  commande             0 non-null       float64
+# Charger les données
+data = pd.read_csv("logs_proxy.csv")
+
+# Convertir la colonne de date en type datetime
+data['date'] = pd.to_datetime(data['date'])
+
+# Créer la feature de jour de la semaine
+data['day_of_week'] = data['date'].dt.dayofweek
+
+# Créer la feature de mois
+data['month'] = data['date'].dt.month
+
+# Créer la feature de jour de la semaine
+data['is_weekend'] = (data['day_of_week'] >= 5).astype(int)
+
+# Calculer la fréquence d'accès par jour
+access_frequency = data.groupby(['user', data['date'].dt.date])['date'].count().reset_index()
+access_frequency.columns = ['user', 'date', 'access_frequency']
+data = pd.merge(data, access_frequency, on=['user', 'date'], how='left')
+
+# Calculer la fréquence d'accès par mois
+monthly_access_frequency = data.groupby(['user', data['date'].dt.to_period('M')])['date'].count().reset_index()
+monthly_access_frequency.columns = ['user', 'month', 'monthly_access_frequency']
+data = pd.merge(data, monthly_access_frequency, on=['user', 'month'], how='left')
+
+# Calculer la fréquence d'accès par jour de la semaine
+weekly_access_frequency = data.groupby(['user', data['date'].dt.dayofweek])['date'].count().reset_index()
+weekly_access_frequency.columns = ['user', 'day_of_week', 'weekly_access_frequency']
+data = pd.merge(data, weekly_access_frequency, on=['user', 'day_of_week'], how='left')
+
+# Afficher les premières lignes du dataset avec les nouvelles features
+print(data.head())
