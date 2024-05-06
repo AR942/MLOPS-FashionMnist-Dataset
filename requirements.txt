@@ -3,7 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
+from sklearn.covariance import EllipticEnvelope
 
 # Charger les données
 data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le nom de votre fichier de données
@@ -12,6 +16,10 @@ data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le 
 scaler = StandardScaler()
 data_scaled = scaler.fit_transform(data)
 
+# Réduire les dimensions avec PCA
+pca = PCA(n_components=2)
+principal_components = pca.fit_transform(data_scaled)
+
 # Appliquer t-SNE pour réduire à 2 dimensions
 tsne = TSNE(n_components=2, random_state=42)
 tsne_components = tsne.fit_transform(data_scaled)
@@ -19,68 +27,66 @@ tsne_components = tsne.fit_transform(data_scaled)
 # Créer un DataFrame pour les deux dimensions t-SNE
 tsne_df = pd.DataFrame(data=tsne_components, columns=['Dimension 1', 'Dimension 2'])
 
-# Créer un modèle Isolation Forest avec les caractéristiques d'origine
-model_original = IsolationForest(contamination=0.1, random_state=42)
-model_original.fit(data)
-
-# Prédire les anomalies avec les caractéristiques d'origine
-predictions_original = model_original.predict(data)
-predictions_original = np.where(predictions_original == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
-
-# Visualisation des prédictions avec les caractéristiques d'origine
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_original, cmap='coolwarm', alpha=0.5)
-plt.title('Détection d\'anomalies avec les caractéristiques d\'origine')
-plt.xlabel('Dimension 1')
-plt.ylabel('Dimension 2')
-plt.colorbar(label='Anomalie')
-plt.grid()
-
-# Visualisation des anomalies détectées avec les caractéristiques d'origine
-plt.subplot(1, 2, 2)
-plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_original, cmap='coolwarm', alpha=0.5)
-plt.title('Anomalies détectées avec les caractéristiques d\'origine')
-plt.xlabel('Dimension 1')
-plt.ylabel('Dimension 2')
-plt.colorbar(label='Anomalie')
-plt.scatter(tsne_df['Dimension 1'][predictions_original == 1], tsne_df['Dimension 2'][predictions_original == 1], color='red', label='Anomalies')
-plt.legend()
-plt.grid()
-
-plt.tight_layout()
-plt.show()
-
 # Créer un modèle Isolation Forest avec les composantes principales
-pca = PCA(n_components=2)
-principal_components = pca.fit_transform(data_scaled)
-model_pca = IsolationForest(contamination=0.1, random_state=42)
-model_pca.fit(principal_components)
+model_forest = IsolationForest(contamination=0.1, random_state=42)
+predictions_forest = model_forest.fit_predict(principal_components)
+predictions_forest = np.where(predictions_forest == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
-# Prédire les anomalies avec les composantes principales
-predictions_pca = model_pca.predict(principal_components)
-predictions_pca = np.where(predictions_pca == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
+# Créer un modèle LOF
+model_lof = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
+predictions_lof = model_lof.fit_predict(principal_components)
+predictions_lof = np.where(predictions_lof == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
-# Visualisation des prédictions avec les composantes principales
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_pca, cmap='coolwarm', alpha=0.5)
-plt.title('Détection d\'anomalies avec les composantes principales')
-plt.xlabel('Dimension 1')
-plt.ylabel('Dimension 2')
+# Créer un modèle One-Class SVM
+model_svm = OneClassSVM(nu=0.1)
+predictions_svm = model_svm.fit_predict(principal_components)
+predictions_svm = np.where(predictions_svm == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
+
+# Créer un modèle Elliptic Envelope
+model_envelope = EllipticEnvelope(contamination=0.1)
+predictions_envelope = model_envelope.fit_predict(principal_components)
+predictions_envelope = np.where(predictions_envelope == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
+
+# Visualisation des prédictions
+plt.figure(figsize=(18, 12))
+
+# Isolation Forest
+plt.subplot(2, 2, 1)
+plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_forest, cmap='coolwarm', alpha=0.5)
+plt.title('Isolation Forest')
 plt.colorbar(label='Anomalie')
 plt.grid()
 
-# Visualisation des anomalies détectées avec les composantes principales
-plt.subplot(1, 2, 2)
-plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_pca, cmap='coolwarm', alpha=0.5)
-plt.title('Anomalies détectées avec les composantes principales')
-plt.xlabel('Dimension 1')
-plt.ylabel('Dimension 2')
+# LOF
+plt.subplot(2, 2, 2)
+plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_lof, cmap='coolwarm', alpha=0.5)
+plt.title('Local Outlier Factor')
 plt.colorbar(label='Anomalie')
-plt.scatter(tsne_df['Dimension 1'][predictions_pca == 1], tsne_df['Dimension 2'][predictions_pca == 1], color='red', label='Anomalies')
-plt.legend()
+plt.grid()
+
+# One-Class SVM
+plt.subplot(2, 2, 3)
+plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_svm, cmap='coolwarm', alpha=0.5)
+plt.title('One-Class SVM')
+plt.colorbar(label='Anomalie')
+plt.grid()
+
+# Elliptic Envelope
+plt.subplot(2, 2, 4)
+plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_envelope, cmap='coolwarm', alpha=0.5)
+plt.title('Elliptic Envelope')
+plt.colorbar(label='Anomalie')
 plt.grid()
 
 plt.tight_layout()
 plt.show()
+
+# Identifier les lignes correspondant aux anomalies dans le jeu de données d'origine pour chaque modèle
+anomalies_forest = data[predictions_forest == 1]
+anomalies_lof = data[predictions_lof == 1]
+anomalies_svm = data[predictions_svm == 1]
+anomalies_envelope = data[predictions_envelope == 1]
+
+# Afficher les anomalies avec les colonnes du jeu de données d'origine pour chaque modèle
+print("Anomalies détectées avec Isolation Forest :")
+print(an
