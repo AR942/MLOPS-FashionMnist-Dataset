@@ -89,4 +89,13 @@ anomalies_envelope = data[predictions_envelope == 1]
 
 # Afficher les anomalies avec les colonnes du jeu de données d'origine pour chaque modèle
 print("Anomalies détectées avec Isolation Forest :")
-print(an
+print(anomalies_forest)
+
+print("Anomalies détectées avec Local Outlier Factor :")
+print(anomalies_lof)
+
+print("Anomalies détectées avec One-Class SVM :")
+print(anomalies_svm)
+
+print("Anomalies détectées avec Elliptic Envelope :")
+print(anomalies_envelope)
