@@ -1,3 +1,5 @@
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,22 +30,22 @@ tsne_components = tsne.fit_transform(data_scaled)
 tsne_df = pd.DataFrame(data=tsne_components, columns=['Dimension 1', 'Dimension 2'])
 
 # Créer un modèle Isolation Forest avec les composantes principales
-model_forest = IsolationForest(contamination=0.1, random_state=42)
+model_forest = IsolationForest(contamination=0.05, random_state=42)
 predictions_forest = model_forest.fit_predict(principal_components)
 predictions_forest = np.where(predictions_forest == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
 # Créer un modèle LOF
-model_lof = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
+model_lof = LocalOutlierFactor(n_neighbors=50, contamination=0.05)
 predictions_lof = model_lof.fit_predict(principal_components)
 predictions_lof = np.where(predictions_lof == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
 # Créer un modèle One-Class SVM
-model_svm = OneClassSVM(nu=0.1)
+model_svm = OneClassSVM(nu=0.05)
 predictions_svm = model_svm.fit_predict(principal_components)
 predictions_svm = np.where(predictions_svm == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
 # Créer un modèle Elliptic Envelope
-model_envelope = EllipticEnvelope(contamination=0.1)
+model_envelope = EllipticEnvelope(contamination=0.05)
 predictions_envelope = model_envelope.fit_predict(principal_components)
 predictions_envelope = np.where(predictions_envelope == -1, 1, 0)  # Transformer les prédictions en 1 pour anomalies, 0 pour non anomalies
 
@@ -51,30 +53,43 @@ predictions_envelope = np.where(predictions_envelope == -1, 1, 0)  # Transformer
 plt.figure(figsize=(18, 12))
 
 # Isolation Forest
-plt.subplot(2, 2, 1)
+plt.subplot(2, 3, 1)
 plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_forest, cmap='coolwarm', alpha=0.5)
-plt.title('Isolation Forest')
+plt.title('Isolation Forest (TSNE)')
 plt.colorbar(label='Anomalie')
 plt.grid()
 
 # LOF
-plt.subplot(2, 2, 2)
+plt.subplot(2, 3, 2)
 plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_lof, cmap='coolwarm', alpha=0.5)
-plt.title('Local Outlier Factor')
+plt.title('Local Outlier Factor (TSNE)')
 plt.colorbar(label='Anomalie')
 plt.grid()
 
 # One-Class SVM
-plt.subplot(2, 2, 3)
+plt.subplot(2, 3, 3)
 plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_svm, cmap='coolwarm', alpha=0.5)
-plt.title('One-Class SVM')
+plt.title('One-Class SVM (TSNE)')
 plt.colorbar(label='Anomalie')
 plt.grid()
 
 # Elliptic Envelope
-plt.subplot(2, 2, 4)
+plt.subplot(2, 3, 4)
 plt.scatter(tsne_df['Dimension 1'], tsne_df['Dimension 2'], c=predictions_envelope, cmap='coolwarm', alpha=0.5)
-plt.title('Elliptic Envelope')
+plt.title('Elliptic Envelope (TSNE)')
+plt.colorbar(label='Anomalie')
+plt.grid()
+
+# Affichage des anomalies dans l'espace PCA
+plt.subplot(2, 3, 5)
+plt.scatter(principal_components[:, 0], principal_components[:, 1], c=predictions_forest, cmap='coolwarm', alpha=0.5)
+plt.title('Isolation Forest (PCA)')
+plt.colorbar(label='Anomalie')
+plt.grid()
+
+plt.subplot(2, 3, 6)
+plt.scatter(principal_components[:, 0], principal_components[:, 1], c=predictions_lof, cmap='coolwarm', alpha=0.5)
+plt.title('Local Outlier Factor (PCA)')
 plt.colorbar(label='Anomalie')
 plt.grid()
 
