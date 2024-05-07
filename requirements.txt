@@ -1,3 +1,12 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from keras.models import Model
+from keras.layers import Input, Dense
+from sklearn.cluster import DBSCAN
+
 # Charger les données
 data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le nom de votre fichier de données
 
@@ -5,13 +14,13 @@ data = pd.read_csv("votre_fichier.csv")  # Remplacez "votre_fichier.csv" par le 
 scaler = StandardScaler()
 data_scaled = scaler.fit_transform(data)
 
-# Appliquer t-SNE pour réduire à 2 dimensions
-tsne = TSNE(n_components=2, random_state=42)
-tsne_components = tsne.fit_transform(data_scaled)
+# Réduire les dimensions avec PCA
+pca = PCA(n_components=2)
+pca_components = pca.fit_transform(data_scaled)
 
 # Définir l'architecture de l'autoencodeur
-input_dim = tsne_components.shape[1]  # Utiliser la taille correcte des données d'entrée après t-SNE
-encoding_dim = 32
+input_dim = pca_components.shape[1]  # Utiliser la taille correcte des données d'entrée après PCA
+encoding_dim = 2  # Nombre de composantes principales
 
 input_layer = Input(shape=(input_dim,))
 encoder = Dense(encoding_dim, activation='relu')(input_layer)
@@ -20,54 +29,54 @@ decoder = Dense(input_dim, activation='sigmoid')(encoder)
 autoencoder = Model(input_layer, decoder)
 autoencoder.compile(optimizer='adam', loss='mean_squared_error')
 
-# Entraîner l'autoencodeur avec les données réduites par t-SNE
-autoencoder.fit(tsne_components, tsne_components, epochs=50, batch_size=64, shuffle=True, validation_split=0.2)
+# Entraîner l'autoencodeur avec les données réduites par PCA
+autoencoder.fit(pca_components, pca_components, epochs=50, batch_size=64, shuffle=True, validation_split=0.2)
 
 # Reconstruire les données avec l'autoencodeur
-reconstructed_tsne = autoencoder.predict(tsne_components)
+reconstructed_pca = autoencoder.predict(pca_components)
 
 # Calculer la perte de reconstruction
-reconstruction_error_tsne = np.mean(np.square(tsne_components - reconstructed_tsne), axis=1)
+reconstruction_error_pca = np.mean(np.square(pca_components - reconstructed_pca), axis=1)
 
 # Définir un seuil pour la détection d'anomalies avec l'autoencodeur
-threshold_autoencoder_tsne = np.percentile(reconstruction_error_tsne, 95)
+threshold_autoencoder_pca = np.percentile(reconstruction_error_pca, 95)
 
 # Identifier les anomalies détectées par l'autoencodeur
-anomalies_autoencoder_tsne = data[reconstruction_error_tsne > threshold_autoencoder_tsne]
+anomalies_autoencoder_pca = data[reconstruction_error_pca > threshold_autoencoder_pca]
 
-# Créer un modèle DBSCAN avec les données t-SNE
+# Créer un modèle DBSCAN avec les données PCA
 dbscan = DBSCAN(eps=0.5, min_samples=5)
 
-# Prédire les clusters avec DBSCAN sur les données t-SNE
-clusters_tsne = dbscan.fit_predict(tsne_components)
+# Prédire les clusters avec DBSCAN sur les données PCA
+clusters_pca = dbscan.fit_predict(pca_components)
 
 # Identifier les anomalies comme les points ne faisant pas partie d'un cluster (cluster -1)
-anomalies_dbscan_tsne = data[clusters_tsne == -1]
+anomalies_dbscan_pca = data[clusters_pca == -1]
 
-# Afficher les lignes qui sont des anomalies détectées par l'autoencodeur avec t-SNE
-print("Anomalies détectées par l'autoencodeur avec t-SNE :")
-print(anomalies_autoencoder_tsne)
+# Afficher les lignes qui sont des anomalies détectées par l'autoencodeur avec PCA
+print("Anomalies détectées par l'autoencodeur avec PCA :")
+print(anomalies_autoencoder_pca)
 
-# Afficher les lignes qui sont des anomalies détectées par DBSCAN avec t-SNE
-print("Anomalies détectées par DBSCAN avec t-SNE :")
-print(anomalies_dbscan_tsne)
+# Afficher les lignes qui sont des anomalies détectées par DBSCAN avec PCA
+print("Anomalies détectées par DBSCAN avec PCA :")
+print(anomalies_dbscan_pca)
 
-# Visualisation des anomalies détectées par l'autoencodeur avec t-SNE
+# Visualisation des anomalies détectées par l'autoencodeur avec PCA
 plt.figure(figsize=(10, 5))
-plt.scatter(tsne_components[:, 0], tsne_components[:, 1], c=reconstruction_error_tsne, cmap='coolwarm', alpha=0.5)
-plt.title('Anomalies détectées par l\'autoencodeur avec t-SNE')
-plt.xlabel('Dimension 1 (t-SNE)')
-plt.ylabel('Dimension 2 (t-SNE)')
+plt.scatter(pca_components[:, 0], pca_components[:, 1], c=reconstruction_error_pca, cmap='coolwarm', alpha=0.5)
+plt.title('Anomalies détectées par l\'autoencodeur avec PCA')
+plt.xlabel('Composante principale 1 (PCA)')
+plt.ylabel('Composante principale 2 (PCA)')
 plt.colorbar(label='Erreur de reconstruction')
 plt.grid()
 plt.show()
 
-# Visualisation des anomalies détectées par DBSCAN avec t-SNE
+# Visualisation des anomalies détectées par DBSCAN avec PCA
 plt.figure(figsize=(10, 5))
-plt.scatter(tsne_components[:, 0], tsne_components[:, 1], c=clusters_tsne, cmap='coolwarm', alpha=0.5)
-plt.title('Anomalies détectées par DBSCAN avec t-SNE')
-plt.xlabel('Dimension 1 (t-SNE)')
-plt.ylabel('Dimension 2 (t-SNE)')
+plt.scatter(pca_components[:, 0], pca_components[:, 1], c=clusters_pca, cmap='coolwarm', alpha=0.5)
+plt.title('Anomalies détectées par DBSCAN avec PCA')
+plt.xlabel('Composante principale 1 (PCA)')
+plt.ylabel('Composante principale 2 (PCA)')
 plt.colorbar(label='Cluster')
 plt.grid()
 plt.show()
